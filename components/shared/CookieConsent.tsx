@@ -29,23 +29,23 @@ export default function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="fixed bottom-0 left-0 right-0 z-[60] bg-canvas-night-elevated/95 backdrop-blur-md border-t border-hairline-dark p-4 sm:p-5 shadow-elevation-4"
+          className="fixed bottom-4 left-4 right-4 z-[60] mx-auto max-w-[800px] bg-white border border-border rounded-lg shadow-card-hover p-5"
         >
-          <div className="container-cinematic flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3 flex-1">
-              <div className="hidden sm:flex w-10 h-10 rounded-full bg-aloe-10/15 items-center justify-center shrink-0 mt-0.5">
-                <Cookie size={18} className="text-aloe-10" />
+              <div className="hidden sm:flex w-10 h-10 rounded-full bg-accent-light items-center justify-center shrink-0 mt-0.5">
+                <Cookie size={18} className="text-accent" />
               </div>
-              <div className="text-caption sm:text-body-md text-link-cool-2 leading-relaxed">
+              <div className="text-body-sm sm:text-body-md text-text-muted leading-relaxed">
                 We use cookies to enhance your browsing experience and analyze our traffic. By clicking &ldquo;Accept All&rdquo;, you consent to our use of cookies.{" "}
-                <Link href="/privacy-policy" className="underline text-on-primary hover:text-aloe-10 transition-colors font-medium">Learn More</Link>
+                <Link href="/privacy-policy" className="underline text-accent hover:text-accent/80 transition-colors font-medium">Learn More</Link>
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0 w-full sm:w-auto">
-              <button onClick={() => setVisible(false)} className="flex-1 sm:flex-none text-center text-caption sm:text-body-md text-link-cool-2 hover:text-on-primary px-4 py-2.5 sm:py-2 rounded-pill border border-hairline-dark hover:border-shade-40 transition-colors">
+              <button onClick={() => setVisible(false)} className="flex-1 sm:flex-none text-center text-body-sm sm:text-body-md text-primary hover:bg-primary-tint px-4 py-2.5 sm:py-2 rounded-md border border-primary transition-colors">
                 Decline
               </button>
-              <button onClick={accept} className="flex-1 sm:flex-none text-center btn-primary text-sm !py-2.5 sm:!py-2 !px-6">
+              <button onClick={accept} className="flex-1 sm:flex-none text-center text-body-sm sm:text-body-md bg-accent text-white hover:bg-accent/90 px-5 py-2.5 sm:py-2 rounded-md font-medium shadow-[0_4px_12px_rgba(201,150,58,0.35)] transition-colors">
                 Accept All
               </button>
             </div>

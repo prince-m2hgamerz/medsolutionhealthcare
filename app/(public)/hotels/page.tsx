@@ -7,9 +7,9 @@ import PageHero from "@/components/layout/PageHero";
 import SearchInput from "@/components/layout/SearchInput";
  
  export const metadata: Metadata = {
-  title: "Hotels Near Hospitals | Asians Healthcare",
+  title: "Hotels Near Hospitals | Med Solution Healthcare",
   description: "Find comfortable accommodation near partner hospitals for your medical stay in India. Ranging from budget to luxury hotels in Delhi NCR.",
-  alternates: { canonical: "https://asianshealthcare.com/hotels" },
+  alternates: { canonical: "https://medsolutionhealthcare.com/hotels" },
 };
 
 export default async function HotelsPage({

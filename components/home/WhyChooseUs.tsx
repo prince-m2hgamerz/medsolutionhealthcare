@@ -6,7 +6,7 @@ import { Stethoscope, Building2, BadgeCheck, Globe, HeartHandshake, DollarSign, 
 const features = [
   { icon: Clock, title: "24-Hour Opinion", description: "Share reports and get a specialist opinion with cost estimate." },
   { icon: MessageSquareText, title: "3 Care Options", description: "Compare relevant doctors and hospitals before deciding." },
-  { icon: DollarSign, title: "Direct Hospital Pricing", description: "Transparent estimates with no extra asians service fee." },
+  { icon: DollarSign, title: "Direct Hospital Pricing", description: "Transparent estimates with no extra service fee." },
   { icon: Globe, title: "Visa and Travel Help", description: "Invitation letter, pickup, hotel, SIM, and local support." },
   { icon: Building2, title: "Accredited Hospitals", description: "NABH and JCI hospital options across major Indian cities." },
   { icon: HeartHandshake, title: "Case Manager", description: "One coordinator from first inquiry to discharge." },
@@ -37,7 +37,7 @@ export default function WhyChooseUs() {
         >
           <span className="pill-tag mb-4 inline-block">Why Choose Us</span>
           <h2 className="font-display text-display-md lg:text-display-lg text mt-4">
-            Why Patients Choose Asians Healthcare
+            Why Patients Choose Med Solution Healthcare
           </h2>
           <p className="text-body-lg text-shade-50 max-w-2xl mx-auto mt-4">
             Practical support for overseas patients seeking treatment in India.

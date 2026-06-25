@@ -4,7 +4,7 @@ import BreadcrumbNav from "@/components/shared/BreadcrumbNav";
 
 export const metadata: Metadata = {
   title: "Treatment Cost Calculator",
-  description: "Compare medical treatment costs in India vs USA, UK, Canada, Australia. See how much you can save with Asians Healthcare.",
+  description: "Compare medical treatment costs in India vs USA, UK, Canada, Australia. See how much you can save with Med Solution Healthcare.",
   alternates: { canonical: "/cost-calculator" },
 };
 

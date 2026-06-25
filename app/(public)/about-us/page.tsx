@@ -8,13 +8,13 @@ import { JsonLd } from "@/components/shared/JsonLd";
 import { organizationSchema, aboutPageSchema, breadcrumbSchema } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
-  title: "About Us | Asians Healthcare",
-  description: "Asians Healthcare is India's trusted medical tourism facilitator. ISO 9001:2015 certified. 15,000+ patients from 30+ countries. Free medical opinion, zero-cost service, end-to-end support.",
-  alternates: { canonical: "https://asianshealthcare.com/about-us" },
+  title: "About Us | Med Solution Healthcare",
+  description: "Med Solution Healthcare is India's trusted medical tourism facilitator. ISO 9001:2015 certified. 500+ patients from 30+ countries. Free medical opinion, zero-cost service, end-to-end support.",
+  alternates: { canonical: "https://medsolutionhealthcare.com/about-us" },
 };
 
 const stats = [
-  { icon: Users, value: "15,000+", label: "Patients Treated" },
+  { icon: Users, value: "500+", label: "Patients Treated" },
   { icon: Award, value: "130+", label: "Partner Hospitals" },
   { icon: Globe, value: "30+", label: "Countries Served" },
   { icon: Shield, value: "4.8", label: "Google Rating (250+ reviews)" },
@@ -60,8 +60,8 @@ export default async function AboutPage() {
       <JsonLd data={organizationSchema()} />
       <JsonLd data={aboutPageSchema()} />
       <JsonLd data={breadcrumbSchema([
-        { name: "Home", url: "https://asianshealthcare.com" },
-        { name: "About Us", url: "https://asianshealthcare.com/about-us" },
+        { name: "Home", url: "https://medsolutionhealthcare.com" },
+        { name: "About Us", url: "https://medsolutionhealthcare.com/about-us" },
       ])} />
       <nav aria-label="Breadcrumb" className="bg-canvas-cream/80 border-b border-hairline-light">
         <div className="container-cinematic py-2.5">
@@ -91,7 +91,7 @@ export default async function AboutPage() {
             <span className="text-link-mint">Medical Tourism Partner</span>
           </h1>
           <p className="text-body-lg text-link-cool-2 max-w-3xl leading-relaxed">
-            Asians Healthcare helps international patients choose relevant doctors, compare
+            Med Solution Healthcare helps international patients choose relevant doctors, compare
             accredited hospitals, estimate treatment cost, and plan a smoother medical trip to India.
           </p>
         </div>

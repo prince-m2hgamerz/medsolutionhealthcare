@@ -64,8 +64,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
-        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://imhukfivfelxfltzqxtx.supabase.co"} />
-        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://imhukfivfelxfltzqxtx.supabase.co"} />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://cjqfgshjpqpfcjdvfpgc.supabase.co"} />
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://cjqfgshjpqpfcjdvfpgc.supabase.co"} />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="alternate" type="application/rss+xml" title="Med Solution Healthcare Blog" href="/api/rss" />
       </head>

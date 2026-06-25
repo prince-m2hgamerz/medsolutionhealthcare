@@ -1,4 +1,4 @@
-You are redesigning asianshealthcare.com — a medical tourism site that
+You are redesigning medsolutionhealthcare.com — a medical tourism site that
 connects international patients with Indian hospitals. The goal is to
 transform it from a generic blue healthcare directory into a premium
 concierge service that radiates calm authority and warm precision.

@@ -6,11 +6,11 @@ import { ChevronDown } from "lucide-react";
 
 const faqs = [
   { q: "Why choose India for medical treatment?", a: "India offers accredited hospitals, experienced specialists, advanced technology, and significantly lower treatment costs than many Western countries." },
-  { q: "How does Asians Healthcare work?", a: "Share your reports, receive opinion and cost guidance, choose a doctor or hospital, then get support for visa invitation, arrival, stay, admission, interpreter help, and follow-up." },
-  { q: "Is Asians Healthcare's service free?", a: "Yes. Patients pay the hospital directly. Asians Healthcare does not add a patient service fee." },
+  { q: "How does Med Solution Healthcare work?", a: "Share your reports, receive opinion and cost guidance, choose a doctor or hospital, then get support for visa invitation, arrival, stay, admission, interpreter help, and follow-up." },
+  { q: "Is Med Solution Healthcare's service free?", a: "Yes. Patients pay the hospital directly. Med Solution Healthcare does not add a patient service fee." },
   { q: "How do I get a medical visa for India?", a: "We help coordinate the hospital invitation letter and guide you on the documents usually required for the embassy application." },
   { q: "Which hospitals do you work with?", a: "We coordinate with NABH and JCI accredited hospitals across major Indian cities, including Delhi NCR, Mumbai, Chennai, Bangalore, and other medical hubs." },
-  { q: "Will language be a barrier?", a: "Most hospital teams speak English, and Asians Healthcare can arrange interpreter support when patients need help during consultations, admission, billing, or discharge." },
+  { q: "Will language be a barrier?", a: "Most hospital teams speak English, and Med Solution Healthcare can arrange interpreter support when patients need help during consultations, admission, billing, or discharge." },
   { q: "How much can I save?", a: "Savings depend on the procedure and hospital, but many patients see treatment estimates that are 60-80% lower than US or UK costs." },
   { q: "What happens after I return home?", a: "We help organize discharge papers, medication guidance, and remote follow-up coordination with the treating team." },
 ];
@@ -33,7 +33,7 @@ export default function FAQSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-body-lg text-shade-50 max-w-2xl mx-auto mt-4">
-            Everything you need to know about medical treatment in India with Asians Healthcare.
+            Everything you need to know about medical treatment in India with Med Solution Healthcare.
           </p>
         </motion.div>
 

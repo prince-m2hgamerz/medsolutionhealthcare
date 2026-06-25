@@ -169,7 +169,7 @@ export default function HeroSection({ imageUrl = "https://satyughealthcare.com/u
             className="flex flex-wrap gap-6 sm:gap-8 md:gap-12 text-sm mt-6 sm:mt-10"
           >
             <div>
-              <span className="font-display text-heading-xl lg:text-display-md text-accent">15,000+</span>
+              <span className="font-display text-heading-xl lg:text-display-md text-accent">500+</span>
               <p className="text-caption text-white/60">International Patients</p>
             </div>
             <div>

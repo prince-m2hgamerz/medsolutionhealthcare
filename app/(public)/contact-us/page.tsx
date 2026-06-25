@@ -8,9 +8,9 @@ import { localBusinessSchema, breadcrumbSchema } from "@/lib/json-ld";
 import { getSiteSettings } from "@/lib/site-settings";
 
 export const metadata: Metadata = {
-  title: "Contact Us | Asians Healthcare",
-  description: "Contact Asians Healthcare for medical treatment in India. Get a free consultation, cost estimate, and treatment plan within 24 hours.",
-  alternates: { canonical: "https://asianshealthcare.com/contact-us" },
+  title: "Contact Us | Med Solution Healthcare",
+  description: "Contact Med Solution Healthcare for medical treatment in India. Get a free consultation, cost estimate, and treatment plan within 24 hours.",
+  alternates: { canonical: "https://medsolutionhealthcare.com/contact-us" },
 };
 
 const responseSteps = [
@@ -36,12 +36,12 @@ export default async function ContactPage() {
       <JsonLd data={
         localBusinessSchema({
           telephone: contact_phone || "+918285068544",
-          email: contact_email || "contact@asianshealthcare.com",
+          email: contact_email || "contact@medsolutionhealthcare.com",
         })
       } />
       <JsonLd data={breadcrumbSchema([
-        { name: "Home", url: "https://asianshealthcare.com" },
-        { name: "Contact Us", url: "https://asianshealthcare.com/contact-us" },
+        { name: "Home", url: "https://medsolutionhealthcare.com" },
+        { name: "Contact Us", url: "https://medsolutionhealthcare.com/contact-us" },
       ])} />
       <PageHero
         eyebrow="Get in Touch"

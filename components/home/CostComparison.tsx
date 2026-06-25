@@ -15,7 +15,7 @@ const comparisons = [
 const included = [
   "Hospital estimate and doctor fee visibility",
   "Expected stay and recovery planning",
-  "No Asians Healthcare service fee for patients",
+  "No Med Solution Healthcare service fee for patients",
   "Direct payment to hospital at agreed pricing",
 ];
 

@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const highlights = [
   { icon: Shield, text: "NABH & JCI Accredited Hospitals" },
-  { icon: Users, text: "15,000+ International Patients Served" },
+  { icon: Users, text: "500+ International Patients Served" },
   { icon: Globe, text: "Patients from 30+ Countries" },
   { icon: HeartPulse, text: "Free Medical Opinion & Cost Estimate" },
 ];
@@ -27,7 +27,7 @@ export default function WhoWeAre() {
               Your Trusted Medical Tourism Partner in India
             </h2>
             <p className="text-body-lg text-shade-50 mt-6 leading-relaxed">
-              Asians Healthcare is a medical assistance company that works as a complete medical guide
+              Med Solution Healthcare is a medical assistance company that works as a complete medical guide
               for international patients seeking world-class treatment in India. We connect you with
               the right doctors and hospitals for your specific medical needs.
             </p>

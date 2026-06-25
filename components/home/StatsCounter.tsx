@@ -8,7 +8,7 @@ interface Stat {
 }
 
 const stats: Stat[] = [
-  { value: 15000, suffix: "+", label: "Happy Patients", icon: Users },
+  { value: 500, suffix: "+", label: "Happy Patients", icon: Users },
   { value: 130, suffix: "+", label: "Partner Hospitals", icon: Building2 },
   { value: 1000, suffix: "+", label: "Specialist Doctors", icon: Stethoscope },
   { value: 30, suffix: "+", label: "Countries Served", icon: Globe },

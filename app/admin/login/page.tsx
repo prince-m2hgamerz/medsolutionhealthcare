@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <h1 className="font-display text-heading-xl text-on-primary mb-2">
-            Asians <span className="text-link-mint">Admin</span>
+            Med Solution <span className="text-link-mint">Admin</span>
           </h1>
           <p className="text-caption text-link-cool-2">Sign in to your account</p>
         </div>

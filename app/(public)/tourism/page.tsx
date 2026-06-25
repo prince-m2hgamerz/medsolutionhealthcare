@@ -5,9 +5,9 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mergeSiteImages, SITE_IMAGE_KEYS } from "@/lib/site-images";
 
 export const metadata: Metadata = {
-  title: "Medical Tourism in India | Asians Healthcare",
+  title: "Medical Tourism in India | Med Solution Healthcare",
   description: "Complete medical tourism guide for India. Visa assistance, airport pickup, hotel booking, interpreter services, and recovery coordination for international patients.",
-  alternates: { canonical: "https://asianshealthcare.com/tourism" },
+  alternates: { canonical: "https://medsolutionhealthcare.com/tourism" },
 };
 
 const destinationCopy = [
@@ -81,7 +81,7 @@ export default async function TourismPage() {
             Treatment in India, planned around recovery
           </h1>
           <p className="mt-6 max-w-3xl text-body-lg leading-relaxed text-link-cool-2">
-            Asians Healthcare helps international patients combine high-quality medical care with practical travel
+            Med Solution Healthcare helps international patients combine high-quality medical care with practical travel
             support: visa documentation, airport pickup, interpreter support, accommodation, hospital
             transfers, and optional recovery-safe sightseeing after doctor approval.
           </p>

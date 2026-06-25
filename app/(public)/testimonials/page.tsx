@@ -7,9 +7,9 @@ import { JsonLd } from "@/components/shared/JsonLd";
 import { breadcrumbSchema } from "@/lib/json-ld";
  
  export const metadata: Metadata = {
-  title: "Patient Testimonials | Asians Healthcare",
-  description: "Read real patient stories and reviews from international medical travelers who received treatment in India through Asians Healthcare.",
-  alternates: { canonical: "https://asianshealthcare.com/testimonials" },
+  title: "Patient Testimonials | Med Solution Healthcare",
+  description: "Read real patient stories and reviews from international medical travelers who received treatment in India through Med Solution Healthcare.",
+  alternates: { canonical: "https://medsolutionhealthcare.com/testimonials" },
 };
 
 export default async function TestimonialsPage() {
@@ -26,8 +26,8 @@ export default async function TestimonialsPage() {
   return (
     <>
       <JsonLd data={breadcrumbSchema([
-        { name: "Home", url: "https://asianshealthcare.com" },
-        { name: "Testimonials", url: "https://asianshealthcare.com/testimonials" },
+        { name: "Home", url: "https://medsolutionhealthcare.com" },
+        { name: "Testimonials", url: "https://medsolutionhealthcare.com/testimonials" },
       ])} />
       <BreadcrumbNav items={[{ label: "Testimonials", href: "/testimonials" }]} />
       <PageHero

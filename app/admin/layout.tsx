@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-hairline-dark p-6">
         <Link href="/admin" className="font-display text-heading-sm tracking-wide text-on-primary">
-          Asians <span className="text-link-mint">Admin</span>
+          Med Solution <span className="text-link-mint">Admin</span>
         </Link>
         <button
           onClick={() => setMobileSidebar(false)}

@@ -1,10 +1,10 @@
-# Asians Healthcare — Medical Tourism Platform
+# Med Solution Healthcare — Medical Tourism Platform
 
 > Connect international patients with India's top hospitals and doctors. A full-featured medical tourism marketplace connecting patients from Africa, the Middle East, South Asia, and beyond with world-class healthcare in Delhi/NCR.
 
 ## Overview
 
-Asians Healthcare is a comprehensive medical tourism platform built on Next.js 14 with Supabase, featuring a complete public-facing website with 15+ pages and a full administrative control panel. The platform enables international patients to search for doctors, compare treatment costs, explore hospitals, book consultations, and plan medical travel to India.
+Med Solution Healthcare is a comprehensive medical tourism platform built on Next.js 14 with Supabase, featuring a complete public-facing website with 15+ pages and a full administrative control panel. The platform enables international patients to search for doctors, compare treatment costs, explore hospitals, book consultations, and plan medical travel to India.
 
 **Key Metrics:**
 - 34 routes, 0 build errors
@@ -268,11 +268,11 @@ SUPABASE_SERVICE_ROLE_KEY=       # Service role key (admin operations)
 
 # Resend Email
 RESEND_API_KEY=                  # Resend API key
-RESEND_FROM_EMAIL=               # Sender address (e.g., noreply@asianshealthcare.com)
+RESEND_FROM_EMAIL=               # Sender address (e.g., noreply@medsolutionhealthcare.com)
 ADMIN_EMAIL=                     # Where lead notifications are sent
 
 # Site
-M2H_PUBLIC_SITE_URL=            # https://asianshealthcare.com
+M2H_PUBLIC_SITE_URL=            # https://medsolutionhealthcare.com
 M2H_PUBLIC_WHATSAPP_NUMBER=     # +918285068544
 ```
 
@@ -365,4 +365,4 @@ The project is fully configured for Vercel deployment with a `vercel.json` file.
 
 ## License
 
-Private — internal project for Asians Healthcare.
+Private — internal project for Med Solution Healthcare.

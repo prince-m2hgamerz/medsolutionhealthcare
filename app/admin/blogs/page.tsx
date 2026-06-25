@@ -25,7 +25,7 @@ export default function AdminBlogsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ title: "", slug: "", category: "", thumbnail_url: "", author: "Asians Team", content: "", is_published: false });
+  const [form, setForm] = useState({ title: "", slug: "", category: "", thumbnail_url: "", author: "Med Solution Team", content: "", is_published: false });
 
   useEffect(() => {
     const supabase = createClient();
@@ -35,7 +35,7 @@ export default function AdminBlogsPage() {
     });
   }, []);
 
-  const openAdd = () => { setEditing(null); setForm({ title: "", slug: "", category: "", thumbnail_url: "", author: "Asians Team", content: "", is_published: false }); setModalOpen(true); };
+  const openAdd = () => { setEditing(null); setForm({ title: "", slug: "", category: "", thumbnail_url: "", author: "Med Solution Team", content: "", is_published: false }); setModalOpen(true); };
   const openEdit = (item: Blog) => {
     setEditing(item);
     setForm({ title: item.title, slug: item.slug, category: item.category, thumbnail_url: item.thumbnail_url || "", author: item.author, content: item.content, is_published: item.is_published });

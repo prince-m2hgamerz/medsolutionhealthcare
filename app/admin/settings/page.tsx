@@ -13,18 +13,18 @@ interface Setting {
 }
 
 const defaultSettings: Setting[] = [
-  { label: "Site Name", key: "site_name", value: "Asians Healthcare" },
+  { label: "Site Name", key: "site_name", value: "Med Solution Healthcare" },
   { label: "WhatsApp Number", key: "whatsapp_number", value: "+918285068544" },
   { label: "Contact Phone", key: "contact_phone", value: "+918285068544" },
-  { label: "Contact Email", key: "contact_email", value: "info@asianshealthcare.com" },
-  { label: "Admin Email", key: "admin_email", value: "admin@asianshealthcare.com" },
+  { label: "Contact Email", key: "contact_email", value: "info@medsolutionhealthcare.com" },
+  { label: "Admin Email", key: "admin_email", value: "admin@medsolutionhealthcare.com" },
   { label: "Hero Title", key: "hero_title", value: "Your Health Journey Starts in India" },
   { label: "Hero Subtitle", key: "hero_subtitle", value: "Connect with India's top-rated hospitals and specialist doctors." },
-  { label: "About Short", key: "about_short", value: "Asians Healthcare is India's premier medical tourism facilitator." },
-  { label: "Facebook URL", key: "facebook_url", value: "https://facebook.com/asianshealthcare" },
-  { label: "Instagram URL", key: "instagram_url", value: "https://instagram.com/asianshealthcare" },
-  { label: "Twitter URL", key: "twitter_url", value: "https://twitter.com/asianshealthcare" },
-  { label: "YouTube URL", key: "youtube_url", value: "https://youtube.com/@asianshealthcare" },
+  { label: "About Short", key: "about_short", value: "Med Solution Healthcare is India's premier medical tourism facilitator." },
+  { label: "Facebook URL", key: "facebook_url", value: "https://facebook.com/medsolutionhealthcare" },
+  { label: "Instagram URL", key: "instagram_url", value: "https://instagram.com/medsolutionhealthcare" },
+  { label: "Twitter URL", key: "twitter_url", value: "https://twitter.com/medsolutionhealthcare" },
+  { label: "YouTube URL", key: "youtube_url", value: "https://youtube.com/@medsolutionhealthcare" },
 ];
 
 export default function AdminSettingsPage() {

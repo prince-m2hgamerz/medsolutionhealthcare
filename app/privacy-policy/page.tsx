@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Asians Healthcare privacy policy - how we handle your medical and personal data.",
+  description: "Med Solution Healthcare privacy policy - how we handle your medical and personal data.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -28,13 +28,13 @@ export default function PrivacyPolicyPage() {
             <p>We implement industry-standard security measures to protect your personal and medical data. All data is encrypted in transit and at rest using secure protocols.</p>
 
             <h2 className="font-display text-heading-xl text-ink">Your Rights</h2>
-            <p>You have the right to access, correct, or delete your personal data at any time. Contact us at info@asianshealthcare.com for any data-related requests.</p>
+            <p>You have the right to access, correct, or delete your personal data at any time. Contact us at info@medsolutionhealthcare.com for any data-related requests.</p>
 
             <h2 className="font-display text-heading-xl text-ink">Cookies</h2>
             <p>We use essential cookies to ensure the proper functioning of our website. No tracking or advertising cookies are used.</p>
 
             <h2 className="font-display text-heading-xl text-ink">Contact</h2>
-            <p>For privacy-related inquiries, contact us at info@asianshealthcare.com or call +91 96509 28250.</p>
+            <p>For privacy-related inquiries, contact us at info@medsolutionhealthcare.com or call +91 96509 28250.</p>
           </div>
         </div>
       </section>

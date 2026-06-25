@@ -90,18 +90,29 @@ export default function ImageUploadField({ label, value, onChange, folder, helpe
         onChange={(event) => handleUpload(event.target.files?.[0])}
       />
 
-      {value ? (
-        <div className="space-y-3">
+      <div className="space-y-3">
+        {value ? (
           <div className="relative h-36 overflow-hidden rounded-md border border-border bg-surface">
             <Image src={value} alt={label} fill className="object-cover" />
           </div>
-          <input
-            type="url"
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            className="w-full rounded-md border border-border px-3 py-2 text-caption text-text focus:border-border-focus focus:outline-none"
-            placeholder="Image URL"
-          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex h-36 w-full flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface text-caption text-text-muted transition-colors hover:border-text-muted hover:text-text"
+          >
+            <ImagePlus size={24} className="mb-2" />
+            Choose image
+          </button>
+        )}
+        <input
+          type="url"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="w-full rounded-md border border-border px-3 py-2 text-caption text-text focus:border-border-focus focus:outline-none"
+          placeholder="Paste image URL or use upload above"
+        />
+        {value && (
           <button
             type="button"
             onClick={handleRemove}
@@ -109,17 +120,8 @@ export default function ImageUploadField({ label, value, onChange, folder, helpe
           >
             <Trash2 size={14} /> Remove image
           </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="flex h-36 w-full flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface text-caption text-text-muted transition-colors hover:border-text-muted hover:text-text"
-        >
-          <ImagePlus size={24} className="mb-2" />
-          Choose image
-        </button>
-      )}
+        )}
+      </div>
 
       {error && <p className="mt-2 text-caption text-red-500">{error}</p>}
     </div>

@@ -11,6 +11,8 @@ import { JsonLd } from "@/components/shared/JsonLd";
 import { breadcrumbSchema } from "@/lib/json-ld";
 import BreadcrumbNav from "@/components/shared/BreadcrumbNav";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Partner Hospitals in India | Med Solution Healthcare",
   description: "Explore India's top JCI and NABH accredited hospitals for medical tourism. Apollo, Max, Artemis, BLK-Max, Sir Ganga Ram & more in Delhi NCR.",
@@ -36,7 +38,7 @@ export default async function HospitalsPage({
     beds: `${hospital.beds_count?.toLocaleString() || 0}+`,
     accreditation: hospital.accreditations?.join(", ") || "Accredited",
     slug: hospital.slug,
-    photo_url: hospitalImageBySlug[hospital.slug] || hospital.logo_url || "/images/hospital-apollo.webp",
+    photo_url: (hospital as any).logo_overridden ? hospital.logo_url : (hospitalImageBySlug[hospital.slug] || hospital.logo_url || "/images/hospital-apollo.webp"),
   })) || [];
 
   const allHospitals = fetchedHospitals.length > 0 ? fetchedHospitals : fallbackHospitals;

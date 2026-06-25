@@ -40,7 +40,7 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write y
     <button
       type="button"
       onMouseDown={(e) => { e.preventDefault(); execCommand(command, arg); }}
-      className="px-2.5 py-1.5 text-caption text-shade-50 hover:bg-canvas-cream rounded transition-colors"
+      className="px-2.5 py-1.5 text-caption text-text-muted hover:bg-surface rounded transition-colors"
     >
       {children}
     </button>
@@ -48,32 +48,32 @@ export default function RichTextEditor({ value, onChange, placeholder = "Write y
 
   if (!isMounted) {
     return (
-      <div className="border border-hairline-light rounded-md min-h-[200px] p-4 text-body-md text-shade-40">
+      <div className="border border-border rounded-md min-h-[200px] p-4 text-body-md text-text-light">
         Loading editor...
       </div>
     );
   }
 
   return (
-    <div className="border border-hairline-light rounded-md overflow-hidden">
-      <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-hairline-light bg-canvas-cream">
+    <div className="border border-border rounded-md overflow-hidden">
+      <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-surface">
         <ToolbarButton command="bold"><strong>B</strong></ToolbarButton>
         <ToolbarButton command="italic"><em>I</em></ToolbarButton>
         <ToolbarButton command="underline"><u>U</u></ToolbarButton>
-        <span className="w-px h-5 bg-hairline-light mx-1" />
+        <span className="w-px h-5 bg-border mx-1" />
         <ToolbarButton command="formatBlock" arg="h3">H3</ToolbarButton>
         <ToolbarButton command="formatBlock" arg="p">P</ToolbarButton>
-        <span className="w-px h-5 bg-hairline-light mx-1" />
+        <span className="w-px h-5 bg-border mx-1" />
         <ToolbarButton command="insertUnorderedList">UL</ToolbarButton>
         <ToolbarButton command="insertOrderedList">OL</ToolbarButton>
-        <span className="w-px h-5 bg-hairline-light mx-1" />
+        <span className="w-px h-5 bg-border mx-1" />
         <ToolbarButton command="createLink" arg="https://">Link</ToolbarButton>
       </div>
       <div
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="min-h-[250px] p-4 text-body-md text-ink focus:outline-none [&:empty:before]:text-shade-40 [&:empty:before]:content-[attr(data-placeholder)]"
+        className="min-h-[250px] p-4 text-body-md text-text focus:outline-none [&:empty:before]:text-text-light [&:empty:before]:content-[attr(data-placeholder)]"
         data-placeholder={placeholder}
         suppressContentEditableWarning
       />

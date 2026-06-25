@@ -1,111 +1,249 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Star } from "lucide-react";
-import DataTable from "@/components/admin/DataTable";
-import Modal from "@/components/admin/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import ImageUploadField from "@/components/admin/ImageUploadField";
-import { createClient } from "@/lib/supabase/client";
+import toast from "react-hot-toast";
 
-interface HotelItem {
+interface Hotel {
   id: string;
   name: string;
   address: string;
   stars: number;
   price_range: string;
-  photo_url: string | null;
+  photo_url: string;
+  created_at: string;
 }
 
-export default function AdminHotelsPage() {
-  const [data, setData] = useState<HotelItem[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<HotelItem | null>(null);
+const emptyForm = { name: "", address: "", stars: 3, price_range: "", photo_url: "" };
+
+async function api(url: string, options?: RequestInit) {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) throw new Error((await res.json()).error);
+  return res.json();
+}
+
+export default function HotelsPage() {
+  const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ name: "", address: "", stars: 3, price_range: "$$", photo_url: "" });
+  const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.from("hotels").select("*").order("name").then(({ data: items }) => {
-      if (items) setData(items as HotelItem[]);
-      setLoading(false);
-    });
+    loadHotels();
   }, []);
 
-  const openAdd = () => { setEditing(null); setForm({ name: "", address: "", stars: 3, price_range: "$$", photo_url: "" }); setModalOpen(true); };
-  const openEdit = (item: HotelItem) => { setEditing(item); setForm({ name: item.name, address: item.address, stars: item.stars || 3, price_range: item.price_range || "$$", photo_url: item.photo_url || "" }); setModalOpen(true); };
-  const handleDelete = async (item: HotelItem) => {
-    if (!confirm(`Delete ${item.name}?`)) return;
-    const supabase = createClient();
-    await supabase.from("hotels").delete().eq("id", item.id);
-    setData(data.filter((d) => d.id !== item.id));
-  };
-  const handleSave = async () => {
-    const supabase = createClient();
-    const payload = { name: form.name, address: form.address, stars: form.stars, price_range: form.price_range, photo_url: form.photo_url || null };
-    if (editing) {
-      await supabase.from("hotels").update(payload).eq("id", editing.id);
-    } else {
-      await supabase.from("hotels").insert(payload);
+  async function loadHotels() {
+    setLoading(true);
+    try {
+      const data = await api("/api/admin/manage?table=hotels&order=name");
+      setHotels(data);
+    } finally {
+      setLoading(false);
     }
-    const { data: items } = await supabase.from("hotels").select("*").order("name");
-    if (items) setData(items as HotelItem[]);
-    setModalOpen(false);
-  };
+  }
 
-  const columns = [
-    { key: "name", label: "Name", className: "text-ink font-medium" },
-    { key: "address", label: "Address", className: "text-shade-50" },
-    { key: "stars", label: "Stars", render: (h: HotelItem) => <span className="inline-flex items-center gap-1 text-shade-50">{h.stars}<Star size={14} className="fill-current" /></span> },
-    { key: "price_range", label: "Price Range", className: "text-shade-50" },
-  ];
+  function openCreate() {
+    setForm(emptyForm);
+    setEditingId(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(h: Hotel) {
+    setForm({
+      name: h.name,
+      address: h.address || "",
+      stars: h.stars,
+      price_range: h.price_range || "",
+      photo_url: h.photo_url || "",
+    });
+    setEditingId(h.id);
+    setModalOpen(true);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await api("/api/admin/manage", {
+          method: "POST",
+          body: JSON.stringify({ action: "update", table: "hotels", id: editingId, data: form }),
+        });
+      } else {
+        await api("/api/admin/manage", {
+          method: "POST",
+          body: JSON.stringify({ action: "create", table: "hotels", data: form }),
+        });
+      }
+      toast.success(editingId ? "Hotel updated" : "Hotel created");
+      setModalOpen(false);
+      await loadHotels();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await api("/api/admin/manage", {
+        method: "POST",
+        body: JSON.stringify({ action: "delete", table: "hotels", id }),
+      });
+      toast.success("Hotel deleted");
+      await loadHotels();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }
+
+  const filtered = hotels.filter((h) =>
+    h.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="font-display text-heading-xl text-ink">Hotels</h1>
-        <button onClick={openAdd} className="btn-primary flex items-center gap-2 text-sm"><Plus size={16} /> <span className="hidden sm:inline">Add Hotel</span></button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Hotels</h1>
+        <Button onClick={openCreate}>Add Hotel</Button>
       </div>
-      <DataTable columns={columns} data={data} onEdit={openEdit} onDelete={handleDelete} loading={loading} searchPlaceholder="Search hotels..." />
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit Hotel" : "Add Hotel"} size="lg">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <label className="block text-caption text-shade-50 mb-1.5">Hotel Name</label>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
+
+      <Input
+        placeholder="Search hotels..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-sm"
+      />
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Photo</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Stars</TableHead>
+              <TableHead>Price Range</TableHead>
+              <TableHead className="w-32">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No hotels found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((h) => (
+                <TableRow key={h.id}>
+                  <TableCell>
+                    {h.photo_url ? (
+                      <img src={h.photo_url} alt={h.name} className="w-12 h-8 object-cover rounded" />
+                    ) : (
+                      <div className="w-12 h-8 bg-muted rounded" />
+                    )}
+                  </TableCell>
+                  <TableCell className="font-medium">{h.name}</TableCell>
+                  <TableCell className="max-w-xs truncate">{h.address}</TableCell>
+                  <TableCell>{"★".repeat(h.stars)}</TableCell>
+                  <TableCell>{h.price_range}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(h)}>
+                        Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(h.id)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit Hotel" : "Add Hotel"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Hotel Name</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-caption text-shade-50 mb-1.5">Address</label>
-              <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
+            <div className="space-y-2">
+              <Label>Address</Label>
+              <Input
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Stars (1-5)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={5}
+                value={form.stars}
+                onChange={(e) => setForm({ ...form, stars: Number(e.target.value) })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Price Range</Label>
+              <Input
+                placeholder="e.g. $100-200"
+                value={form.price_range}
+                onChange={(e) => setForm({ ...form, price_range: e.target.value })}
+              />
             </div>
             <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Price Range</label>
-              <select value={form.price_range} onChange={(e) => setForm({ ...form, price_range: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink">
-                <option value="$">$ - Budget</option>
-                <option value="$$">$$ - Mid-range</option>
-                <option value="$$$">$$$ - Luxury</option>
-                <option value="$$$$">$$$$ - Ultra Luxury</option>
-              </select>
+              <ImageUploadField
+                label="Photo URL"
+                folder="hotels"
+                value={form.photo_url}
+                onChange={(url) => setForm({ ...form, photo_url: url })}
+              />
             </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Stars</label>
-              <select value={form.stars} onChange={(e) => setForm({ ...form, stars: Number(e.target.value) })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink">
-                {[1, 2, 3, 4, 5].map((s) => <option key={s} value={s}>{s} Star{s > 1 ? "s" : ""}</option>)}
-              </select>
-            </div>
-          </div>
-          <ImageUploadField
-            label="Hotel image"
-            value={form.photo_url}
-            onChange={(photo_url) => setForm({ ...form, photo_url })}
-            folder="hotels"
-            helper="Used when hotels are displayed on the public site."
-          />
-          <div className="flex justify-end gap-3 pt-4 border-t border-hairline-light">
-            <button onClick={() => setModalOpen(false)} className="btn-outline">Cancel</button>
-            <button onClick={handleSave} className="btn-primary">Save</button>
-          </div>
-        </div>
-      </Modal>
+            <Button type="submit" className="w-full">
+              {editingId ? "Update" : "Create"} Hotel
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

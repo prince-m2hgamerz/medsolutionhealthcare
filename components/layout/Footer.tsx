@@ -63,7 +63,8 @@ export default function Footer() {
             <div className="mt-4 sm:mt-6 space-y-2 sm:space-y-3 text-caption text-shade-50">
               <div className="flex items-start gap-2">
                 <MapPin size={14} className="mt-0.5 shrink-0 text-accent" />
-                <span>New Delhi, India</span>
+                <span>Unit No. 36 living style mall 
+Jasola New Delhi 110025</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone size={14} className="shrink-0 text-accent" />

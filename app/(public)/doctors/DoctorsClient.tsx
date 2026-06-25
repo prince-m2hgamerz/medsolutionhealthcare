@@ -9,7 +9,7 @@ import {
   Search, X, Filter, ChevronDown, ChevronUp, Building2,
   Stethoscope, User, SlidersHorizontal,
 } from "lucide-react";
-import { allDoctors, HOSPITALS, type Doctor } from "@/lib/doctors-data";
+import { allDoctors as allDoctorsFallback, HOSPITALS, type Doctor } from "@/lib/doctors-data";
 
 // ─── constants ────────────────────────────────────────────────────────────────
 
@@ -38,21 +38,6 @@ function hashColor(name: string): string {
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
   return colors[Math.abs(hash) % colors.length];
 }
-
-// Build specialty list from all doctors (non-empty, sorted by frequency)
-function buildSpecialties(): { label: string; count: number }[] {
-  const counts: Record<string, number> = {};
-  for (const d of allDoctors) {
-    if (d.specialty && d.specialty !== "Specialist") {
-      counts[d.specialty] = (counts[d.specialty] ?? 0) + 1;
-    }
-  }
-  return Object.entries(counts)
-    .map(([label, count]) => ({ label, count }))
-    .sort((a, b) => b.count - a.count);
-}
-
-const ALL_SPECIALTIES = buildSpecialties();
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
@@ -198,7 +183,8 @@ function FilterSection({
 
 // ─── main component ───────────────────────────────────────────────────────────
 
-export default function DoctorsClient() {
+export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doctor[] }) {
+  const allDoctors = doctorsProp ?? allDoctorsFallback;
   const router = useRouter();
   const params = useSearchParams();
 
@@ -263,12 +249,25 @@ export default function DoctorsClient() {
 
   const hasFilters = !!(q || selectedHospital || selectedSpecialties.length > 0 || selectedGender);
 
+  // Build specialty list from data (non-empty, sorted by frequency)
+  const ALL_SPECIALTIES = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const d of allDoctors) {
+      if (d.specialty && d.specialty !== "Specialist") {
+        counts[d.specialty] = (counts[d.specialty] ?? 0) + 1;
+      }
+    }
+    return Object.entries(counts)
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [allDoctors]);
+
   // Count per hospital for filter labels
   const hospitalCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const d of allDoctors) counts[d.hospitalSlug] = (counts[d.hospitalSlug] ?? 0) + 1;
     return counts;
-  }, []);
+  }, [allDoctors]);
 
   // Filtered doctors
   const filtered = useMemo(() => {
@@ -283,7 +282,7 @@ export default function DoctorsClient() {
       }
       return true;
     });
-  }, [q, selectedHospital, selectedSpecialties, selectedGender]);
+  }, [q, selectedHospital, selectedSpecialties, selectedGender, allDoctors]);
 
   // Paginated
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));

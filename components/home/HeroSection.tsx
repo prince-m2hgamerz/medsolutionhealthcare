@@ -66,7 +66,7 @@ export default function HeroSection({ imageUrl = "https://satyughealthcare.com/u
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="pill-tag mb-6 inline-block"
+            className="pill-tag mb-6 inline-block text-[9px] sm:text-eyebrow"
           >
             Trusted Medical Tourism Company in India
           </motion.span>

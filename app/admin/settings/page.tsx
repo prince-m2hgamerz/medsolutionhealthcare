@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import ImageUploadField from "@/components/admin/ImageUploadField";
 import { SITE_IMAGE_DEFAULTS, SITE_IMAGE_KEYS, SITE_IMAGE_SLOTS, type SiteImageKey } from "@/lib/site-images";
 
@@ -35,8 +34,7 @@ export default function AdminSettingsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.from("site_settings").select("*").in("key", [...defaultSettings.map((s) => s.key), ...SITE_IMAGE_KEYS]).then(({ data }) => {
+    fetch("/api/admin/site-settings").then((res) => res.json()).then((data) => {
       if (data && data.length > 0) {
         const merged = defaultSettings.map((s) => {
           const found = data.find((d: Record<string, unknown>) => d.key === s.key);
@@ -66,24 +64,23 @@ export default function AdminSettingsPage() {
   };
 
   const handleSave = async () => {
-    const supabase = createClient();
     setSaving(true);
     setError("");
 
-    const { error: saveError } = await supabase
-      .from("site_settings")
-      .upsert(
-        [
-          ...settings.map((setting) => ({ key: setting.key, value: setting.value })),
-          ...Object.entries(images).map(([key, value]) => ({ key, value })),
-        ],
-        { onConflict: "key" }
-      );
+    const res = await fetch("/api/admin/site-settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([
+        ...settings.map((setting) => ({ key: setting.key, value: setting.value })),
+        ...Object.entries(images).map(([key, value]) => ({ key, value })),
+      ]),
+    });
 
     setSaving(false);
 
-    if (saveError) {
-      setError(saveError.message);
+    if (!res.ok) {
+      const { error } = await res.json();
+      setError(error ?? "Failed to save settings");
       return;
     }
 
@@ -94,7 +91,7 @@ export default function AdminSettingsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="font-display text-heading-xl text-ink">Site Settings</h1>
+        <h1 className="font-display text-heading-xl text-text">Site Settings</h1>
         <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2 text-sm disabled:opacity-50">
           <Save size={16} /> <span className="hidden sm:inline">{saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}</span>
         </button>
@@ -107,22 +104,22 @@ export default function AdminSettingsPage() {
       )}
 
       {saved && (
-        <div className="bg-aloe-10/20 border border-aloe-10 text-ink rounded-md px-4 py-3 text-body-md mb-6">
+        <div className="bg-aloe-10/20 border border-aloe-10 text-text rounded-md px-4 py-3 text-body-md mb-6">
           Settings saved successfully!
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {settings.map((setting) => (
-          <div key={setting.key} className="bg-canvas-light rounded-lg border border-hairline-light p-5">
-            <label className="block text-caption text-shade-40 uppercase tracking-wider mb-2">
+          <div key={setting.key} className="bg-surface rounded-lg border border-border p-5">
+            <label className="block text-caption text-text-light uppercase tracking-wider mb-2">
               {setting.label}
             </label>
             <input
               type="text"
               value={setting.value}
               onChange={(e) => updateSetting(setting.key, e.target.value)}
-              className="w-full border border-hairline-light rounded-md px-4 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink transition-colors"
+              className="w-full border border-border rounded-md px-4 py-2.5 text-body-md text-text focus:outline-none focus:border-border-focus transition-colors"
             />
           </div>
         ))}
@@ -130,11 +127,11 @@ export default function AdminSettingsPage() {
 
       <div className="mt-10">
         <div className="mb-5">
-          <p className="text-caption text-shade-50">Supabase Storage</p>
-          <h2 className="font-display text-heading-lg text-ink">Editable Site Images</h2>
-          <p className="mt-1 max-w-3xl text-body-md text-shade-50">
+          <p className="text-caption text-text-muted">Supabase Storage</p>
+          <h2 className="font-display text-heading-lg text-text">Editable Site Images</h2>
+          <p className="mt-1 max-w-3xl text-body-md text-text-muted">
             Upload, replace, or remove the main page and section images. Files are stored in the
-            <span className="font-medium text-ink"> site-images </span>
+            <span className="font-medium text-text"> site-images </span>
             Supabase bucket and saved as site settings.
           </p>
         </div>

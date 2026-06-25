@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
             <p>We use essential cookies to ensure the proper functioning of our website. No tracking or advertising cookies are used.</p>
 
             <h2 className="font-display text-heading-xl text-ink">Contact</h2>
-            <p>For privacy-related inquiries, contact us at info@medsolutionhealthcare.com or call +91 96509 28250.</p>
+            <p>For privacy-related inquiries, contact us at info@medsolutionhealthcare.com or call +91 82850 68544.</p>
           </div>
         </div>
       </section>

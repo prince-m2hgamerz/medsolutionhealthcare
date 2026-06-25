@@ -173,13 +173,18 @@ export default function Navbar() {
               className="h-8 w-auto shrink-0"
               priority
             />
-            <span
-              style={{ fontFamily: NAV_SERIF }}
-              className="text-[20px] font-medium -tracking-[0.5px] truncate max-w-[44vw] sm:max-w-[280px] lg:max-w-[340px] text-foreground"
-            >
-              {wordmark.lead && <span>{wordmark.lead} </span>}
-              <span className="text-accent">{wordmark.accent}</span>
-            </span>
+            <div className="flex flex-col">
+              <span
+                style={{ fontFamily: NAV_SERIF }}
+                className="text-[17px] sm:text-[20px] font-medium -tracking-[0.5px] truncate max-w-[50vw] sm:max-w-[280px] lg:max-w-[340px] text-foreground leading-tight"
+              >
+                {wordmark.lead && <span>{wordmark.lead} </span>}
+                <span className="text-accent">{wordmark.accent}</span>
+              </span>
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.15em] text-muted-foreground/70 leading-tight">
+                Medical Tourism in India
+              </span>
+            </div>
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">

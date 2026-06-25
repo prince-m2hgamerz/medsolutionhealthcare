@@ -1,141 +1,303 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
-import DataTable from "@/components/admin/DataTable";
-import Modal from "@/components/admin/Modal";
-import RichTextEditor from "@/components/admin/RichTextEditor";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import ImageUploadField from "@/components/admin/ImageUploadField";
-import { createClient } from "@/lib/supabase/client";
+import toast from "react-hot-toast";
 
 interface Blog {
   id: string;
   title: string;
   slug: string;
   category: string;
-  content: string;
-  thumbnail_url: string | null;
+  thumbnail_url: string;
   author: string;
+  content: string;
   is_published: boolean;
-  published_at: string;
+  created_at: string;
 }
 
-export default function AdminBlogsPage() {
-  const [data, setData] = useState<Blog[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Blog | null>(null);
+const emptyForm = {
+  title: "",
+  slug: "",
+  category: "",
+  thumbnail_url: "",
+  author: "",
+  content: "",
+  is_published: false,
+};
+
+async function api(url: string, options?: RequestInit) {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) throw new Error((await res.json()).error);
+  return res.json();
+}
+
+export default function BlogsPage() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ title: "", slug: "", category: "", thumbnail_url: "", author: "Med Solution Team", content: "", is_published: false });
+  const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.from("blogs").select("*").order("published_at", { ascending: false }).then(({ data: items }) => {
-      if (items) setData(items as Blog[]);
-      setLoading(false);
-    });
+    loadBlogs();
   }, []);
 
-  const openAdd = () => { setEditing(null); setForm({ title: "", slug: "", category: "", thumbnail_url: "", author: "Med Solution Team", content: "", is_published: false }); setModalOpen(true); };
-  const openEdit = (item: Blog) => {
-    setEditing(item);
-    setForm({ title: item.title, slug: item.slug, category: item.category, thumbnail_url: item.thumbnail_url || "", author: item.author, content: item.content, is_published: item.is_published });
-    setModalOpen(true);
-  };
-  const handleDelete = async (item: Blog) => {
-    if (!confirm(`Delete "${item.title}"?`)) return;
-    const supabase = createClient();
-    await supabase.from("blogs").delete().eq("id", item.id);
-    setData(data.filter((d) => d.id !== item.id));
-  };
-  const handleSave = async () => {
-    const supabase = createClient();
-    const payload = {
-      title: form.title,
-      slug: form.slug || form.title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
-      category: form.category,
-      thumbnail_url: form.thumbnail_url || null,
-      author: form.author,
-      content: form.content,
-      is_published: form.is_published,
-      published_at: form.is_published ? new Date().toISOString() : null,
-    };
-    if (editing) {
-      await supabase.from("blogs").update(payload).eq("id", editing.id);
-    } else {
-      await supabase.from("blogs").insert(payload);
+  async function loadBlogs() {
+    setLoading(true);
+    try {
+      const data = await api(
+        "/api/admin/manage?table=blogs&order=published_at&orderDirection=desc"
+      );
+      setBlogs(data);
+    } finally {
+      setLoading(false);
     }
-    const { data: items } = await supabase.from("blogs").select("*").order("published_at", { ascending: false });
-    if (items) setData(items as Blog[]);
-    setModalOpen(false);
-  };
+  }
 
-  const columns = [
-    { key: "title", label: "Title", className: "text-ink font-medium max-w-xs truncate" },
-    { key: "category", label: "Category", className: "text-shade-50" },
-    { key: "author", label: "Author", className: "text-shade-50" },
-    {
-      key: "is_published",
-      label: "Status",
-      render: (b: Blog) => b.is_published
-        ? <span className="text-aloe-10 bg-aloe-10/20 rounded-pill px-2 py-0.5 text-micro">Published</span>
-        : <span className="text-shade-40 bg-shade-30 rounded-pill px-2 py-0.5 text-micro">Draft</span>,
-    },
-    { key: "published_at", label: "Date", render: (b: Blog) => b.published_at ? new Date(b.published_at).toLocaleDateString() : "-", className: "text-shade-40" },
-  ];
+  function openCreate() {
+    setForm(emptyForm);
+    setEditingId(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(b: Blog) {
+    setForm({
+      title: b.title,
+      slug: b.slug,
+      category: b.category || "",
+      thumbnail_url: b.thumbnail_url || "",
+      author: b.author || "",
+      content: b.content || "",
+      is_published: b.is_published,
+    });
+    setEditingId(b.id);
+    setModalOpen(true);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await api("/api/admin/manage", {
+          method: "POST",
+          body: JSON.stringify({
+            action: "update",
+            table: "blogs",
+            id: editingId,
+            data: form,
+          }),
+        });
+      } else {
+        await api("/api/admin/manage", {
+          method: "POST",
+          body: JSON.stringify({
+            action: "create",
+            table: "blogs",
+            data: form,
+          }),
+        });
+      }
+      toast.success(editingId ? "Blog updated" : "Blog created");
+      setModalOpen(false);
+      await loadBlogs();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await api("/api/admin/manage", {
+        method: "POST",
+        body: JSON.stringify({ action: "delete", table: "blogs", id }),
+      });
+      toast.success("Blog deleted");
+      await loadBlogs();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }
+
+  const filtered = blogs.filter((b) =>
+    b.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="font-display text-heading-xl text-ink">Blogs</h1>
-        <button onClick={openAdd} className="btn-primary flex items-center gap-2 text-sm"><Plus size={16} /> <span className="hidden sm:inline">New Post</span></button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Blogs</h1>
+        <Button onClick={openCreate}>Add Blog</Button>
       </div>
-      <DataTable columns={columns} data={data} onEdit={openEdit} onDelete={handleDelete} loading={loading} searchPlaceholder="Search blogs..." />
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit Blog Post" : "New Blog Post"} size="lg">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="col-span-2">
-              <label className="block text-caption text-shade-50 mb-1.5">Title</label>
-              <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
+
+      <Input
+        placeholder="Search blogs..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-sm"
+      />
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Thumbnail</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Author</TableHead>
+              <TableHead>Published</TableHead>
+              <TableHead className="w-32">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  No blogs found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((b) => (
+                <TableRow key={b.id}>
+                  <TableCell>
+                    {b.thumbnail_url ? (
+                      <img
+                        src={b.thumbnail_url}
+                        alt={b.title}
+                        className="w-16 h-10 object-cover rounded"
+                      />
+                    ) : (
+                      <div className="w-16 h-10 bg-muted rounded" />
+                    )}
+                  </TableCell>
+                  <TableCell className="font-medium max-w-xs truncate">{b.title}</TableCell>
+                  <TableCell>{b.category}</TableCell>
+                  <TableCell>{b.author}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${
+                        b.is_published
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {b.is_published ? "Yes" : "No"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(b)}>
+                        Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(b.id)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit Blog" : "Add Blog"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Title</Label>
+              <Input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                required
+              />
             </div>
-            <div className="col-span-2">
-              <label className="block text-caption text-shade-50 mb-1.5">Slug</label>
-              <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" placeholder="auto-generated" />
+            <div className="space-y-2">
+              <Label>Slug</Label>
+              <Input
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                required
+              />
             </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Category</label>
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink">
-                <option value="">Select...</option>
-                <option value="Medical Visa Guide">Medical Visa Guide</option>
-                <option value="Treatment Blog">Treatment Blog</option>
-                <option value="Tourism Blog">Tourism Blog</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Input
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Author</Label>
+                <Input
+                  value={form.author}
+                  onChange={(e) => setForm({ ...form, author: e.target.value })}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Author</label>
-              <input value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
+            <div className="space-y-2">
+              <Label>Thumbnail</Label>
+              <ImageUploadField
+                label="Thumbnail"
+                folder="blogs"
+                value={form.thumbnail_url}
+                onChange={(url) => setForm({ ...form, thumbnail_url: url })}
+              />
             </div>
-          </div>
-          <ImageUploadField
-            label="Blog thumbnail"
-            value={form.thumbnail_url}
-            onChange={(thumbnail_url) => setForm({ ...form, thumbnail_url })}
-            folder="blogs"
-            helper="Used on the blog listing and article previews."
-          />
-          <div>
-            <label className="block text-caption text-shade-50 mb-1.5">Content</label>
-            <RichTextEditor value={form.content} onChange={(html) => setForm({ ...form, content: html })} />
-          </div>
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="published" checked={form.is_published} onChange={(e) => setForm({ ...form, is_published: e.target.checked })} className="rounded border-hairline-light" />
-            <label htmlFor="published" className="text-body-md text-shade-50">Publish immediately</label>
-          </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-hairline-light">
-            <button onClick={() => setModalOpen(false)} className="btn-outline">Cancel</button>
-            <button onClick={handleSave} className="btn-primary">Save</button>
-          </div>
-        </div>
-      </Modal>
+            <div className="space-y-2">
+              <Label>Content</Label>
+              <Textarea
+                value={form.content}
+                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                rows={8}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={form.is_published}
+                onCheckedChange={(v) => setForm({ ...form, is_published: v })}
+              />
+              <Label>Published</Label>
+            </div>
+            <Button type="submit" className="w-full">
+              {editingId ? "Update" : "Create"} Blog
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,133 +1,309 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Circle, Plus } from "lucide-react";
-import DataTable from "@/components/admin/DataTable";
-import Modal from "@/components/admin/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import ImageUploadField from "@/components/admin/ImageUploadField";
-import { createClient } from "@/lib/supabase/client";
+import toast from "react-hot-toast";
 
 interface Hospital {
   id: string;
   name: string;
   slug: string;
-  logo_url: string | null;
+  logo_url: string;
   city: string;
   state: string;
   beds_count: number;
   accreditations: string[];
   is_featured: boolean;
+  created_at: string;
 }
 
-export default function AdminHospitalsPage() {
-  const [data, setData] = useState<Hospital[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Hospital | null>(null);
+const emptyForm = {
+  name: "",
+  slug: "",
+  logo_url: "",
+  city: "",
+  state: "",
+  beds_count: 0,
+  accreditations: "",
+  is_featured: false,
+};
+
+async function api(url: string, options?: RequestInit) {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) throw new Error((await res.json()).error);
+  return res.json();
+}
+
+export default function HospitalsPage() {
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ name: "", slug: "", logo_url: "", city: "", state: "", beds_count: 0, accreditations: "", is_featured: false });
+  const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.from("hospitals").select("*").order("name").then(({ data: items }) => {
-      if (items) setData(items as Hospital[]);
-      setLoading(false);
-    });
+    loadHospitals();
   }, []);
 
-  const openAdd = () => { setEditing(null); setForm({ name: "", slug: "", logo_url: "", city: "", state: "", beds_count: 0, accreditations: "", is_featured: false }); setModalOpen(true); };
-  const openEdit = (item: Hospital) => {
-    setEditing(item);
-    setForm({ name: item.name, slug: item.slug, logo_url: item.logo_url || "", city: item.city, state: item.state, beds_count: item.beds_count || 0, accreditations: item.accreditations?.join(", ") || "", is_featured: item.is_featured || false });
-    setModalOpen(true);
-  };
-  const handleDelete = async (item: Hospital) => {
-    if (!confirm(`Delete ${item.name}?`)) return;
-    const supabase = createClient();
-    await supabase.from("hospitals").delete().eq("id", item.id);
-    setData(data.filter((d) => d.id !== item.id));
-  };
-  const handleSave = async () => {
-    const supabase = createClient();
-    const payload = {
-      name: form.name,
-      slug: form.slug || form.name.toLowerCase().replace(/\s+/g, "-"),
-      logo_url: form.logo_url || null,
-      city: form.city,
-      state: form.state,
-      beds_count: form.beds_count,
-      accreditations: form.accreditations.split(",").map((s) => s.trim()).filter(Boolean),
-      is_featured: form.is_featured,
-    };
-    if (editing) {
-      await supabase.from("hospitals").update(payload).eq("id", editing.id);
-    } else {
-      await supabase.from("hospitals").insert(payload);
+  async function loadHospitals() {
+    setLoading(true);
+    try {
+      const data = await api("/api/admin/manage?table=hospitals&order=name");
+      setHospitals(data);
+    } finally {
+      setLoading(false);
     }
-    const { data: items } = await supabase.from("hospitals").select("*").order("name");
-    if (items) setData(items as Hospital[]);
-    setModalOpen(false);
-  };
+  }
 
-  const columns = [
-    { key: "name", label: "Name", className: "text-ink font-medium" },
-    { key: "city", label: "City", className: "text-shade-50" },
-    { key: "beds_count", label: "Beds", render: (h: Hospital) => h.beds_count?.toLocaleString() || 0, className: "text-shade-50" },
-    { key: "accreditations", label: "Accreditations", render: (h: Hospital) => h.accreditations?.join(", ") || "-", className: "text-shade-50" },
-    { key: "is_featured", label: "Featured", render: (h: Hospital) => h.is_featured ? <CheckCircle2 size={18} className="text-ink" /> : <Circle size={18} className="text-shade-30" /> },
-  ];
+  function openCreate() {
+    setForm(emptyForm);
+    setEditingId(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(h: Hospital) {
+    setForm({
+      name: h.name,
+      slug: h.slug,
+      logo_url: h.logo_url || "",
+      city: h.city || "",
+      state: h.state || "",
+      beds_count: h.beds_count,
+      accreditations: (h.accreditations || []).join(", "),
+      is_featured: h.is_featured,
+    });
+    setEditingId(h.id);
+    setModalOpen(true);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const payload = {
+      ...form,
+      accreditations: form.accreditations
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      beds_count: Number(form.beds_count),
+    };
+
+    try {
+      if (editingId) {
+        await api("/api/admin/manage", {
+          method: "POST",
+          body: JSON.stringify({ action: "update", table: "hospitals", id: editingId, data: payload }),
+        });
+      } else {
+        await api("/api/admin/manage", {
+          method: "POST",
+          body: JSON.stringify({ action: "create", table: "hospitals", data: payload }),
+        });
+      }
+      toast.success(editingId ? "Hospital updated" : "Hospital created");
+      setModalOpen(false);
+      await loadHospitals();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await api("/api/admin/manage", {
+        method: "POST",
+        body: JSON.stringify({ action: "delete", table: "hospitals", id }),
+      });
+      toast.success("Hospital deleted");
+      await loadHospitals();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  }
+
+  const filtered = hospitals.filter((h) =>
+    h.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="font-display text-heading-xl text-ink">Hospitals</h1>
-        <button onClick={openAdd} className="btn-primary flex items-center gap-2 text-sm"><Plus size={16} /> <span className="hidden sm:inline">Add Hospital</span></button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Hospitals</h1>
+        <Button onClick={openCreate}>Add Hospital</Button>
       </div>
-      <DataTable columns={columns} data={data} onEdit={openEdit} onDelete={handleDelete} loading={loading} searchPlaceholder="Search hospitals..." />
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit Hospital" : "Add Hospital"} size="lg">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Hospital Name</label>
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
+
+      <Input
+        placeholder="Search hospitals..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="max-w-sm"
+      />
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Logo</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Beds</TableHead>
+              <TableHead>Accreditations</TableHead>
+              <TableHead>Featured</TableHead>
+              <TableHead className="w-32">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  No hospitals found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((h) => (
+                <TableRow key={h.id}>
+                  <TableCell>
+                    {h.logo_url ? (
+                      <img src={h.logo_url} alt={h.name} className="w-10 h-10 object-contain rounded" />
+                    ) : (
+                      <div className="w-10 h-10 bg-muted rounded" />
+                    )}
+                  </TableCell>
+                  <TableCell className="font-medium">{h.name}</TableCell>
+                  <TableCell>{[h.city, h.state].filter(Boolean).join(", ")}</TableCell>
+                  <TableCell>{h.beds_count}</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {(h.accreditations || []).join(", ")}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${
+                        h.is_featured
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {h.is_featured ? "Yes" : "No"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => openEdit(h)}>
+                        Edit
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete(h.id)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit Hospital" : "Add Hospital"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Hospital Name</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Slug</Label>
+              <Input
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>City</Label>
+                <Input
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>State</Label>
+                <Input
+                  value={form.state}
+                  onChange={(e) => setForm({ ...form, state: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Beds Count</Label>
+              <Input
+                type="number"
+                value={form.beds_count}
+                onChange={(e) => setForm({ ...form, beds_count: Number(e.target.value) })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Accreditations (comma separated)</Label>
+              <Input
+                value={form.accreditations}
+                onChange={(e) => setForm({ ...form, accreditations: e.target.value })}
+              />
             </div>
             <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Slug</label>
-              <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" placeholder="auto-generated" />
+              <ImageUploadField
+                label="Logo URL"
+                folder="hospitals"
+                value={form.logo_url}
+                onChange={(url) => setForm({ ...form, logo_url: url })}
+              />
             </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">City</label>
-              <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={form.is_featured}
+                onCheckedChange={(v) => setForm({ ...form, is_featured: v })}
+              />
+              <Label>Featured</Label>
             </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">State</label>
-              <input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
-            </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Total Beds</label>
-              <input type="number" value={form.beds_count} onChange={(e) => setForm({ ...form, beds_count: Number(e.target.value) })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" />
-            </div>
-            <div>
-              <label className="block text-caption text-shade-50 mb-1.5">Accreditations (comma-separated)</label>
-              <input value={form.accreditations} onChange={(e) => setForm({ ...form, accreditations: e.target.value })} className="w-full border border-hairline-light rounded-md px-3 py-2.5 text-body-md text-ink focus:outline-none focus:border-ink" placeholder="JCI, NABH" />
-            </div>
-          </div>
-          <ImageUploadField
-            label="Hospital image"
-            value={form.logo_url}
-            onChange={(logo_url) => setForm({ ...form, logo_url })}
-            folder="hospitals"
-            helper="Used on hospital cards and profile pages."
-          />
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="featured" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} className="rounded border-hairline-light" />
-            <label htmlFor="featured" className="text-body-md text-shade-50">Featured hospital</label>
-          </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-hairline-light">
-            <button onClick={() => setModalOpen(false)} className="btn-outline">Cancel</button>
-            <button onClick={handleSave} className="btn-primary">Save</button>
-          </div>
-        </div>
-      </Modal>
+            <Button type="submit" className="w-full">
+              {editingId ? "Update" : "Create"} Hospital
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

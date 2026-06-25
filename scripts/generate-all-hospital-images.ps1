@@ -29,7 +29,8 @@ $images = @(
 
   @{ file="hospital-apollo.webp";     prompt="Apollo Hospitals Indraprastha main building exterior New Delhi India, flagship 700-bed tertiary care hospital, iconic white and blue glass facade, prominent Apollo signage, green portico entrance with columns, well-maintained lawns, bright blue sky, professional healthcare architectural photography, daylight" }
 
-  @{ file="hospital-fortis-escorts.webp"; prompt="Fortis Escorts Heart Institute exterior Okhla New Delhi, India's most recognised cardiac hospital 485 beds, modern glass and concrete facade with prominent Fortis signage, blue sky, clean professional hospital architecture, bright sunny day photography" }
+  @{ file="hospital-fortis-escorts.webp"; prompt="Fortis Escorts Heart Institute exterior Okhla Unit No. 36 living style mall 
+Jasola New Delhi 110025's most recognised cardiac hospital 485 beds, modern glass and concrete facade with prominent Fortis signage, blue sky, clean professional hospital architecture, bright sunny day photography" }
 
   @{ file="hospital-max-saket.webp";  prompt="Max Super Speciality Hospital Saket exterior New Delhi, 680-bed multi-specialty hospital, large modern glass and steel complex, prominent Max Healthcare signage, green landscaping, clear blue sky, professional architectural healthcare photography" }
 

@@ -25,7 +25,7 @@ export default async function ContactPage() {
   const waNumber = whatsapp_number?.replace(/[^0-9]/g, "") || "918285068544";
 
   const contactInfo = [
-    { icon: MapPin, title: "Address", value: "New Delhi, India", href: null },
+    { icon: MapPin, title: "Address", value: "Unit No. 36 living style mall Jasola New Delhi 110025", href: null },
     { icon: Phone, title: "Phone", value: contact_phone, href: `tel:${contact_phone}` },
     { icon: Mail, title: "Email", value: contact_email, href: `mailto:${contact_email}` },
     { icon: MessageCircle, title: "WhatsApp", value: "Chat on WhatsApp", href: `https://wa.me/${waNumber}` },

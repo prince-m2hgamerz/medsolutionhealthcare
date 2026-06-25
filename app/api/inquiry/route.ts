@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 
 const ALLOWED_FIELDS = ["name", "email", "phone", "message", "treatment", "country", "medical_condition"] as const;
@@ -26,7 +26,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: validated.error }, { status: 400 });
     }
 
-    const supabase = await createServerSupabaseClient();
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     const { data, error } = await supabase
       .from("leads")

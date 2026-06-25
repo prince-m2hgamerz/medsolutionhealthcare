@@ -5,7 +5,8 @@ import { JsonLd } from "@/components/shared/JsonLd";
 import { breadcrumbSchema } from "@/lib/json-ld";
 import BreadcrumbNav from "@/components/shared/BreadcrumbNav";
 import DoctorsClient from "./DoctorsClient";
-import { allDoctors } from "@/lib/doctors-data";
+import { allDoctors, type Doctor } from "@/lib/doctors-data";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Specialist Doctors in India | Apollo, Max, Medanta, BLK-Max & More",
@@ -14,6 +15,29 @@ export const metadata: Metadata = {
 };
 
 export default async function DoctorsPage() {
+  const supabase = await createServerSupabaseClient();
+  const { data: dbDoctors } = await supabase
+    .from("doctors")
+    .select("slug, qualifications, photo_url, specialties")
+    .limit(500);
+
+  const hasSupabaseData = !!dbDoctors && dbDoctors.length > 0;
+  let doctors: Doctor[] | undefined;
+
+  if (hasSupabaseData) {
+    const dbMap = new Map(dbDoctors.map((d) => [d.slug, d]));
+    doctors = allDoctors.map((d) => {
+      const db = dbMap.get(d.slug);
+      if (!db) return d;
+      return {
+        ...d,
+        qualifications: db.qualifications || d.qualifications,
+        photo_url: db.photo_url || d.photo_url,
+        specialty: db.specialties?.[0] || d.specialty,
+      };
+    });
+  }
+
   return (
     <>
       <JsonLd data={breadcrumbSchema([
@@ -35,7 +59,7 @@ export default async function DoctorsPage() {
           Loading doctors...
         </div>
       }>
-        <DoctorsClient />
+        <DoctorsClient doctors={doctors} />
       </Suspense>
     </>
   );

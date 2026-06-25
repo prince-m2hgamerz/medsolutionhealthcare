@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Activity, ArrowRight, Building2, MessageSquare, Stethoscope, TrendingUp, Users } from "lucide-react";
 import StatsCard from "@/components/admin/StatsCard";
-import { createClient } from "@/lib/supabase/client";
 
 type LeadStatus = "new" | "contacted" | "converted" | "closed";
 
@@ -17,11 +16,23 @@ interface RecentLead {
   date: string;
 }
 
+interface DashboardData {
+  totalLeads: number;
+  todayCount: number;
+  recentLeads: RecentLead[];
+  pipeline: Record<LeadStatus, number>;
+  counts: {
+    doctors: number;
+    hospitals: number;
+    treatments: number;
+  };
+}
+
 const statusColors: Record<LeadStatus, string> = {
-  new: "bg-aloe-10 text-ink",
-  contacted: "bg-shade-30 text-ink",
-  converted: "bg-pistachio-10 text-ink",
-  closed: "bg-shade-50 text-on-primary",
+  new: "bg-accent-light text-accent-text",
+  contacted: "bg-primary-tint text-primary-mid",
+  converted: "bg-accent-light text-accent-text",
+  closed: "bg-border text-text-muted",
 };
 
 const pipelineLabels: Record<LeadStatus, string> = {
@@ -32,97 +43,42 @@ const pipelineLabels: Record<LeadStatus, string> = {
 };
 
 export default function AdminDashboard() {
-  const [recentLeads, setRecentLeads] = useState<RecentLead[]>([]);
-  const [leadCount, setLeadCount] = useState(0);
-  const [todayCount, setTodayCount] = useState(0);
-  const [counts, setCounts] = useState({
-    doctors: 0,
-    hospitals: 0,
-    treatments: 0,
-  });
-  const [pipeline, setPipeline] = useState<Record<LeadStatus, number>>({
-    new: 0,
-    contacted: 0,
-    converted: 0,
-    closed: 0,
-  });
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    async function loadDashboard() {
-      const [
-        totalLeads,
-        todayLeads,
-        latestLeads,
-        allPipelineLeads,
-        doctors,
-        hospitals,
-        treatments,
-      ] = await Promise.all([
-        supabase.from("leads").select("*", { count: "exact", head: true }),
-        supabase.from("leads").select("*", { count: "exact", head: true }).gte("created_at", today.toISOString()),
-        supabase.from("leads").select("id, name, form_type, country, status, created_at").order("created_at", { ascending: false }).limit(6),
-        supabase.from("leads").select("status").limit(500),
-        supabase.from("doctors").select("*", { count: "exact", head: true }),
-        supabase.from("hospitals").select("*", { count: "exact", head: true }),
-        supabase.from("treatments").select("*", { count: "exact", head: true }),
-      ]);
-
-      setLeadCount(totalLeads.count || 0);
-      setTodayCount(todayLeads.count || 0);
-      setCounts({
-        doctors: doctors.count || 0,
-        hospitals: hospitals.count || 0,
-        treatments: treatments.count || 0,
-      });
-
-      if (latestLeads.data) {
-        setRecentLeads(latestLeads.data.map((lead: Record<string, unknown>) => ({
-          id: lead.id as string,
-          name: lead.name as string,
-          type: lead.form_type as string,
-          country: lead.country as string,
-          status: lead.status as LeadStatus,
-          date: lead.created_at ? timeAgo(new Date(lead.created_at as string)) : "",
-        })));
-      }
-
-      if (allPipelineLeads.data) {
-        const next = { new: 0, contacted: 0, converted: 0, closed: 0 };
-        allPipelineLeads.data.forEach((lead: Record<string, unknown>) => {
-          const status = lead.status as LeadStatus;
-          if (status in next) next[status] += 1;
-        });
-        setPipeline(next);
-      }
-
-      setLoading(false);
-    }
-
-    loadDashboard();
+    fetch("/api/admin/leads-data")
+      .then((res) => res.json())
+      .then((json: DashboardData) => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
+
+  const recentLeads = data?.recentLeads ?? [];
+  const leadCount = data?.totalLeads ?? 0;
+  const todayCount = data?.todayCount ?? 0;
+  const pipeline = data?.pipeline ?? { new: 0, contacted: 0, converted: 0, closed: 0 };
+  const counts = data?.counts ?? { doctors: 0, hospitals: 0, treatments: 0 };
 
   const convertedCount = pipeline.converted;
   const conversionRate = leadCount > 0 ? Math.round((convertedCount / leadCount) * 100) : 0;
   const pipelineMax = useMemo(() => Math.max(...Object.values(pipeline), 1), [pipeline]);
 
   const stats = [
-    { label: "Total Leads", value: loading ? "..." : leadCount.toLocaleString(), change: "all inquiries", icon: MessageSquare, color: "bg-aloe-10" },
-    { label: "New Today", value: loading ? "..." : String(todayCount), change: "since midnight", icon: Activity, color: "bg-pistachio-10" },
-    { label: "Conversion Rate", value: loading ? "..." : `${conversionRate}%`, change: `${convertedCount} converted`, icon: TrendingUp, color: "bg-aloe-10" },
-    { label: "Content Library", value: loading ? "..." : (counts.doctors + counts.hospitals + counts.treatments).toLocaleString(), change: "doctors, hospitals, treatments", icon: Users, color: "bg-pistachio-10" },
+    { label: "Total Leads", value: loading ? "..." : leadCount.toLocaleString(), change: "all inquiries", icon: MessageSquare, color: "bg-accent/10" },
+    { label: "New Today", value: loading ? "..." : String(todayCount), change: "since midnight", icon: Activity, color: "bg-primary-tint" },
+    { label: "Conversion Rate", value: loading ? "..." : `${conversionRate}%`, change: `${convertedCount} converted`, icon: TrendingUp, color: "bg-accent/10" },
+    { label: "Content Library", value: loading ? "..." : (counts.doctors + counts.hospitals + counts.treatments).toLocaleString(), change: "doctors, hospitals, treatments", icon: Users, color: "bg-primary-tint" },
   ];
 
   return (
     <div>
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-caption text-shade-50">Operational overview</p>
-          <h1 className="font-display text-heading-xl text-ink">Dashboard</h1>
+          <p className="text-caption text-text-muted">Operational overview</p>
+          <h1 className="font-display text-display-md text-text">Dashboard</h1>
         </div>
         <Link href="/admin/leads" className="btn-primary inline-flex gap-2 self-start lg:self-auto">
           <span className="hidden sm:inline">Manage Leads</span>
@@ -138,49 +94,49 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-lg border border-hairline-light bg-canvas-light p-6">
+        <div className="rounded-lg border border-border bg-surface-white p-6 shadow-card">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-heading-md text-ink">Recent Leads</h2>
-            <Link href="/admin/leads" className="text-caption text-shade-50 hover:text-ink">View all</Link>
+            <h2 className="font-display text-heading-md text-text">Recent Leads</h2>
+            <Link href="/admin/leads" className="text-caption text-text-muted hover:text-text">View all</Link>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-body-md">
               <thead>
-                <tr className="border-b border-hairline-light text-left">
-                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-shade-40">Name</th>
-                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-shade-40">Type</th>
-                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-shade-40">Country</th>
-                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-shade-40">Status</th>
-                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-shade-40">Date</th>
+                <tr className="border-b border-border text-left">
+                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-text-muted">Name</th>
+                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-text-muted">Type</th>
+                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-text-muted">Country</th>
+                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-text-muted">Status</th>
+                  <th className="pb-3 text-caption font-medium uppercase tracking-wider text-text-muted">Date</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   Array.from({ length: 5 }).map((_, index) => (
-                    <tr key={index} className="border-b border-hairline-light">
+                    <tr key={index} className="border-b border-border">
                       <td colSpan={5} className="py-3">
-                        <div className="h-5 animate-pulse rounded bg-canvas-cream" />
+                        <div className="h-5 animate-pulse rounded bg-surface" />
                       </td>
                     </tr>
                   ))
                 ) : recentLeads.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-caption text-shade-40">
+                    <td colSpan={5} className="py-8 text-center text-caption text-text-muted">
                       No leads yet.
                     </td>
                   </tr>
                 ) : (
                   recentLeads.map((lead) => (
-                    <tr key={lead.id} className="border-b border-hairline-light last:border-0">
-                      <td className="py-3 font-medium text-ink">{lead.name}</td>
-                      <td className="py-3 text-shade-50">{lead.type}</td>
-                      <td className="py-3 text-shade-50">{lead.country}</td>
+                    <tr key={lead.id} className="border-b border-border last:border-0">
+                      <td className="py-3 font-medium text-text">{lead.name}</td>
+                      <td className="py-3 text-text-muted">{lead.type}</td>
+                      <td className="py-3 text-text-muted">{lead.country}</td>
                       <td className="py-3">
-                        <span className={`rounded-pill px-2 py-0.5 text-micro capitalize ${statusColors[lead.status]}`}>
+                        <span className={`rounded-full px-2 py-0.5 text-micro capitalize ${statusColors[lead.status]}`}>
                           {lead.status}
                         </span>
                       </td>
-                      <td className="py-3 text-shade-40">{lead.date}</td>
+                      <td className="py-3 text-text-muted">{lead.date}</td>
                     </tr>
                   ))
                 )}
@@ -190,18 +146,18 @@ export default function AdminDashboard() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border border-hairline-light bg-canvas-light p-6">
-            <h2 className="font-display text-heading-md text-ink">Lead Pipeline</h2>
+          <div className="rounded-lg border border-border bg-surface-white p-6 shadow-card">
+            <h2 className="font-display text-heading-md text-text">Lead Pipeline</h2>
             <div className="mt-5 space-y-4">
               {statusOptions().map((status) => (
                 <div key={status}>
                   <div className="mb-1.5 flex items-center justify-between text-caption">
-                    <span className="text-shade-50">{pipelineLabels[status]}</span>
-                    <span className="font-medium text-ink">{pipeline[status]}</span>
+                    <span className="text-text-muted">{pipelineLabels[status]}</span>
+                    <span className="font-medium text-text">{pipeline[status]}</span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-pill bg-canvas-cream">
+                  <div className="h-2 overflow-hidden rounded-full bg-surface">
                     <div
-                      className="h-full rounded-pill bg-ink transition-all"
+                      className="h-full rounded-full bg-primary transition-all"
                       style={{ width: `${Math.max((pipeline[status] / pipelineMax) * 100, pipeline[status] > 0 ? 8 : 0)}%` }}
                     />
                   </div>
@@ -237,14 +193,14 @@ function ContentLink({
   value: number;
 }) {
   return (
-    <Link href={href} className="flex items-center justify-between rounded-lg border border-hairline-light bg-canvas-light p-4 sm:p-5 transition-colors hover:bg-canvas-cream min-h-[60px]">
+    <Link href={href} className="flex items-center justify-between rounded-lg border border-border bg-surface-white p-4 sm:p-5 transition-colors hover:bg-surface shadow-card min-h-[60px]">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-aloe-10">
-          <Icon size={20} className="text-ink" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/10">
+          <Icon size={20} className="text-text" />
         </div>
-        <span className="font-display text-heading-sm text-ink">{label}</span>
+        <span className="font-display text-heading-sm text-text">{label}</span>
       </div>
-      <span className="text-body-strong text-shade-60">{value.toLocaleString()}</span>
+      <span className="text-body-md font-medium text-text">{value.toLocaleString()}</span>
     </Link>
   );
 }

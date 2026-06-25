@@ -27,11 +27,16 @@ export default function InquiryForm({ className = "", buttonText = "Submit Enqui
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const payload: Record<string, string> = {};
+    formData.forEach((value, key) => {
+      if (typeof value === "string") payload[key] = value;
+    });
 
     try {
       const res = await fetch("/api/inquiry", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error("Failed to submit");
@@ -71,11 +76,11 @@ export default function InquiryForm({ className = "", buttonText = "Submit Enqui
 
       <div className={compact ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 sm:grid-cols-2 gap-4"}>
         <div>
-          <label htmlFor="fullName" className="block text-sm font-medium text-[#1a1a2e] mb-1">Full Name *</label>
+          <label htmlFor="name" className="block text-sm font-medium text-[#1a1a2e] mb-1">Full Name *</label>
           <input
             type="text"
-            id="fullName"
-            name="fullName"
+            id="name"
+            name="name"
             required
             className="w-full border border-[#e2e8f0] rounded-md px-3 py-2.5 text-sm outline-none focus:border-[#0a7e3d] focus:ring-1 focus:ring-[#0a7e3d]/20 transition-colors"
             placeholder="Your full name"

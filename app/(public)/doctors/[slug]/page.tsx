@@ -6,10 +6,36 @@ import { notFound } from "next/navigation";
 import { fallbackDoctors } from "@/lib/fallback-data";
 import { JsonLd } from "@/components/shared/JsonLd";
 import { physicianSchema, breadcrumbSchema } from "@/lib/json-ld";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+// ─── helpers ───────────────────────────────────────────────────────────────────
+
+async function resolveDoctor(slug: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: dbDoctor } = await supabase
+    .from("doctors")
+    .select("name, specialties, experience_years, hospital:hospitals(name), photo_url, qualifications, about, slug")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (dbDoctor) {
+    return {
+      name: dbDoctor.name,
+      specialty: dbDoctor.specialties?.[0] ?? "",
+      experience: `${dbDoctor.experience_years ?? 0}+ years`,
+      hospital: (dbDoctor.hospital as { name?: string } | null)?.name ?? "",
+      photo_url: dbDoctor.photo_url ?? "",
+      qualifications: dbDoctor.qualifications ?? "",
+      about: dbDoctor.about ?? "",
+    };
+  }
+
+  return fallbackDoctors.find((d) => d.slug === slug) ?? null;
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const doctor = fallbackDoctors.find((doctor) => doctor.slug === slug);
+  const doctor = await resolveDoctor(slug);
   if (!doctor) return { title: "Doctor Not Found" };
   return {
     title: doctor.name,
@@ -20,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function DoctorDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const doctor = fallbackDoctors.find((doctor) => doctor.slug === slug);
+  const doctor = await resolveDoctor(slug);
 
   if (!doctor) notFound();
 

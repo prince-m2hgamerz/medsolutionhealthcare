@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 40" fill="none">
+  <!-- Medical Cross + Heart Icon -->
+  <g>
+    <!-- Heart shape -->
+    <path d="M16 8C12.5 4 7 4.5 5 8C3 11.5 4 15 8 18.5L16 26L24 18.5C28 15 29 11.5 27 8C25 4.5 19.5 4 16 8Z" fill="#34d399" opacity="0.9"/>
+    <!-- Cross on heart -->
+    <rect x="14" y="11" width="4" height="10" rx="1" fill="white"/>
+    <rect x="11" y="14" width="10" height="4" rx="1" fill="white"/>
+  </g>
+  <!-- "Asians" text -->
+  <text x="36" y="22" font-family="Inter, Helvetica, Arial, sans-serif" font-size="18" font-weight="700" fill="#0B3954" letter-spacing="0.5">
+    Asians
+  </text>
+  <!-- "Healthcare" text -->
+  <text x="108" y="22" font-family="Inter, Helvetica, Arial, sans-serif" font-size="18" font-weight="300" fill="#0B3954" letter-spacing="0.5">
+    Healthcare
+  </text>
+  <!-- Tagline -->
+  <text x="36" y="35" font-family="Inter, Helvetica, Arial, sans-serif" font-size="7" font-weight="400" fill="#94a3b8" letter-spacing="1.5" text-transform="uppercase">
+    MEDICAL TOURISM IN INDIA
+  </text>
+</svg>

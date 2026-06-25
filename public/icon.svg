@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Heart shape -->
+  <path d="M16 8C12.5 4 7 4.5 5 8C3 11.5 4 15 8 18.5L16 26L24 18.5C28 15 29 11.5 27 8C25 4.5 19.5 4 16 8Z" fill="#059669"/>
+  <!-- Cross on heart -->
+  <rect x="14" y="11" width="4" height="10" rx="1" fill="white"/>
+  <rect x="11" y="14" width="10" height="4" rx="1" fill="white"/>
+</svg>

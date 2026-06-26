@@ -30,6 +30,7 @@ import {
   fallbackInsurances,
   fallbackTestimonials,
 } from "@/lib/fallback-data";
+import { hospitalImageBySlug } from "@/lib/doctors-data";
 import { mergeSiteImages, SITE_IMAGE_KEYS, SITE_IMAGE_DEFAULTS } from "@/lib/site-images";
 import type { SiteImageKey } from "@/lib/site-images";
 
@@ -39,13 +40,16 @@ export default async function HomePage() {
   let insurances: string[] = [];
   let images: Record<SiteImageKey, string> = { ...SITE_IMAGE_DEFAULTS };
 
+  let hospitals: { name: string; location: string; beds: string; accreditation: string; slug: string; photo_url?: string }[] = [];
+
   try {
     const supabase = await createServerSupabaseClient();
-    const [treatmentsRes, testimonialsRes, insuranceRes, settingsRes] = await Promise.all([
+    const [treatmentsRes, testimonialsRes, insuranceRes, settingsRes, hospitalsRes] = await Promise.all([
       supabase.from("treatments").select("*").eq("is_featured", true).limit(6),
       supabase.from("testimonials").select("*").eq("is_approved", true).limit(10),
       supabase.from("insurance_companies").select("name"),
       supabase.from("site_settings").select("key, value").in("key", SITE_IMAGE_KEYS),
+      supabase.from("hospitals").select("*").limit(50),
     ]);
 
     treatments = treatmentsRes.data?.map((t) => ({
@@ -75,6 +79,15 @@ export default async function HomePage() {
     testimonials = [...withVideo, ...firstImage];
 
     insurances = insuranceRes.data?.map((i) => i.name).filter(Boolean) || [];
+    hospitals = (hospitalsRes.data || []).map((hospital) => ({
+      name: hospital.name,
+      location: `${hospital.city}, ${hospital.state}`,
+      beds: `${hospital.beds_count?.toLocaleString() || 0}+`,
+      accreditation: hospital.accreditations?.join(", ") || "Accredited",
+      slug: hospital.slug,
+      photo_url: (hospital as any).logo_overridden ? hospital.logo_url : (hospitalImageBySlug[hospital.slug] || hospital.logo_url || "/images/hospital-apollo.webp"),
+    }));
+
     images = mergeSiteImages(settingsRes.data || undefined) as Record<SiteImageKey, string>;
   } catch {
     console.warn("Supabase unavailable, using fallback data");
@@ -102,7 +115,7 @@ export default async function HomePage() {
       <TravelProcess />
       <FeaturedDoctors doctors={fallbackDoctors.slice(0, 8)} />
       <GetConsultation />
-      <FeaturedHospitals hospitals={fallbackHospitals} />
+      <FeaturedHospitals hospitals={hospitals.length > 0 ? hospitals : fallbackHospitals} />
       <CostComparison imageUrl={images.image_home_cost} />
 
       <QuickInquiryForm />

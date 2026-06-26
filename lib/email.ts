@@ -5,6 +5,18 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const from = process.env.RESEND_FROM_EMAIL || "Med Solution Healthcare <noreply@medsolutionhealthcare.com>";
 const fallbackAdminEmail = process.env.ADMIN_EMAIL || "admin@medsolutionhealthcare.com";
 
+function escapeHtml(val: unknown): string {
+  if (val === null || val === undefined) return "-";
+  const s = String(val);
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .replace(/\n/g, "<br>");
+}
+
 async function getAdminEmail(): Promise<string> {
   try {
     const supabase = await createServerSupabaseClient();
@@ -31,7 +43,7 @@ export async function sendLeadNotification(lead: Record<string, unknown>) {
 
   const fields = Object.entries(lead)
     .filter(([k]) => !["id", "status", "created_at", "updated_at"].includes(k))
-    .map(([k, v]) => `<tr><td style="padding:8px 12px;border:1px solid #ddd;font-size:14px;text-transform:capitalize;color:#333">${k.replace(/_/g, " ")}</td><td style="padding:8px 12px;border:1px solid #ddd;font-size:14px;color:#111">${v || "-"}</td></tr>`)
+    .map(([k, v]) => `<tr><td style="padding:8px 12px;border:1px solid #ddd;font-size:14px;text-transform:capitalize;color:#333">${k.replace(/_/g, " ")}</td><td style="padding:8px 12px;border:1px solid #ddd;font-size:14px;color:#111">${escapeHtml(v)}</td></tr>`)
     .join("");
 
   const html = `
@@ -40,7 +52,7 @@ export async function sendLeadNotification(lead: Record<string, unknown>) {
         <h1 style="color:#86efac;margin:0;font-size:20px">Med Solution Healthcare</h1>
       </div>
       <div style="padding:24px;background:#fbfbf5">
-        <h2 style="margin:0 0 16px;font-size:18px;color:#111">New ${formType} Lead</h2>
+        <h2 style="margin:0 0 16px;font-size:18px;color:#111">New ${escapeHtml(formType)} Lead</h2>
         <table style="width:100%;border-collapse:collapse">
           ${fields}
         </table>
@@ -53,7 +65,7 @@ export async function sendLeadNotification(lead: Record<string, unknown>) {
     await resend.emails.send({
       from,
       to: adminEmail,
-      subject: `New Lead: ${formType} from ${name} (${country})`,
+      subject: `New Lead: ${escapeHtml(formType)} from ${escapeHtml(name)} (${escapeHtml(country)})`,
       html,
     });
   } catch (err) {
@@ -85,9 +97,9 @@ export async function sendCustomerConfirmation(lead: Record<string, unknown>) {
         <h1 style="color:#86efac;margin:0;font-size:20px">Med Solution Healthcare</h1>
       </div>
       <div style="padding:24px;background:#fbfbf5">
-        <h2 style="margin:0 0 16px;font-size:18px;color:#111">Thank You, ${name}!</h2>
+        <h2 style="margin:0 0 16px;font-size:18px;color:#111">Thank You, ${escapeHtml(name)}!</h2>
         <p style="font-size:14px;color:#333;line-height:1.6">
-          We have received your ${label.toLowerCase()} and our team will review it shortly.
+          We have received your ${escapeHtml(label.toLowerCase())} and our team will review it shortly.
         </p>
         <p style="font-size:14px;color:#333;line-height:1.6">
           A member of our patient support team will contact you within <strong>24 hours</strong> to assist with your medical travel needs.

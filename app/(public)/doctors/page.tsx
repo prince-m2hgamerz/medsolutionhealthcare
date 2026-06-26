@@ -16,26 +16,63 @@ export const metadata: Metadata = {
 
 export default async function DoctorsPage() {
   const supabase = await createServerSupabaseClient();
-  const { data: dbDoctors } = await supabase
-    .from("doctors")
-    .select("slug, qualifications, photo_url, specialties")
-    .limit(500);
 
-  const hasSupabaseData = !!dbDoctors && dbDoctors.length > 0;
-  let doctors: Doctor[] | undefined;
+  const SELECT_FIELDS = "name, slug, photo_url, specialties, qualifications, designation, gender, expertise, telephone, profile_url, appointment_url, hospital_id";
 
-  if (hasSupabaseData) {
-    const dbMap = new Map(dbDoctors.map((d) => [d.slug, d]));
-    doctors = allDoctors.map((d) => {
-      const db = dbMap.get(d.slug);
-      if (!db) return d;
+  const [firstResult, hospitalResult] = await Promise.all([
+    supabase
+      .from("doctors")
+      .select(SELECT_FIELDS, { count: "exact", head: false })
+      .order("name")
+      .range(0, 999),
+    supabase
+      .from("hospitals")
+      .select("id, name, slug"),
+  ]);
+
+  let dbRows: any[] = [...(firstResult.data || [])];
+  const total = firstResult.count || 0;
+
+  if (total > 1000) {
+    const pages = Math.ceil(total / 1000);
+    for (let i = 1; i < pages; i++) {
+      const off = i * 1000;
+      const page = await supabase
+        .from("doctors")
+        .select(SELECT_FIELDS)
+        .order("name")
+        .range(off, off + 999);
+      dbRows = dbRows.concat(page.data || []);
+    }
+  }
+
+  let doctors: Doctor[];
+
+  if (dbRows.length > 0) {
+    const hospitalMap = new Map(
+      (hospitalResult.data || []).map((h) => [h.id, h])
+    );
+    doctors = dbRows.map((doc: any) => {
+      const h = hospitalMap.get(doc.hospital_id);
       return {
-        ...d,
-        qualifications: db.qualifications || d.qualifications,
-        photo_url: db.photo_url || d.photo_url,
-        specialty: db.specialties?.[0] || d.specialty,
+        name: doc.name,
+        slug: doc.slug,
+        specialty: doc.specialties?.[0] || "",
+        allSpecialties: doc.specialties || [],
+        hospital: h?.name || "",
+        hospitalSlug: h?.slug || "",
+        designation: doc.designation || "",
+        qualifications: doc.qualifications || "",
+        photo_url: doc.photo_url,
+        profileUrl: doc.profile_url,
+        appointmentUrl: doc.appointment_url,
+        gender: doc.gender || "",
+        expertise: doc.expertise || [],
+        telephone: doc.telephone || "",
       };
     });
+  } else {
+    doctors = allDoctors;
   }
 
   return (

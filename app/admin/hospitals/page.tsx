@@ -107,7 +107,6 @@ export default function HospitalsPage() {
         .map((s) => s.trim())
         .filter(Boolean),
       beds_count: Number(form.beds_count),
-      logo_overridden: form.logo_url.trim().length > 0,
     };
 
     try {

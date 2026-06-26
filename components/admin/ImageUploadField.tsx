@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
 
 interface ImageUploadFieldProps {
@@ -83,7 +82,7 @@ export default function ImageUploadField({ label, value, onChange, folder, helpe
       <div className="space-y-3">
         {value ? (
           <div className="relative h-36 overflow-hidden rounded-md border border-border bg-surface">
-            <Image src={value} alt={label} fill className="object-cover" />
+            <img src={value} alt={label} className="h-full w-full object-cover" />
           </div>
         ) : (
           <button

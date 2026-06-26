@@ -253,8 +253,11 @@ export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doct
   const ALL_SPECIALTIES = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const d of allDoctors) {
-      if (d.specialty && d.specialty !== "Specialist") {
-        counts[d.specialty] = (counts[d.specialty] ?? 0) + 1;
+      const specs = d.allSpecialties?.length ? d.allSpecialties : [d.specialty];
+      for (const s of specs) {
+        if (s && s !== "Specialist") {
+          counts[s] = (counts[s] ?? 0) + 1;
+        }
       }
     }
     return Object.entries(counts)
@@ -274,10 +277,13 @@ export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doct
     const lq = q.toLowerCase();
     return allDoctors.filter((d) => {
       if (selectedHospital && d.hospitalSlug !== selectedHospital) return false;
-      if (selectedSpecialties.length > 0 && !selectedSpecialties.includes(d.specialty)) return false;
+      if (selectedSpecialties.length > 0) {
+        const ds = d.allSpecialties?.length ? d.allSpecialties : [d.specialty];
+        if (!ds.some((s) => selectedSpecialties.includes(s))) return false;
+      }
       if (selectedGender && d.gender !== selectedGender) return false;
       if (lq) {
-        const haystack = [d.name, d.specialty, d.hospital, d.designation, ...d.expertise].join(" ").toLowerCase();
+        const haystack = [d.name, d.specialty, ...(d.allSpecialties || []), d.hospital, d.designation, ...d.expertise].join(" ").toLowerCase();
         if (!haystack.includes(lq)) return false;
       }
       return true;

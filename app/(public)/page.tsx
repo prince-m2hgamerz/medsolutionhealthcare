@@ -31,7 +31,6 @@ import {
   fallbackInsurances,
   fallbackTestimonials,
 } from "@/lib/fallback-data";
-import { hospitalImageBySlug } from "@/lib/doctors-data";
 import { SITE_IMAGE_DEFAULTS } from "@/lib/site-images";
 import type { SiteImageKey } from "@/lib/site-images";
 
@@ -86,7 +85,7 @@ export default async function HomePage() {
       beds: `${hospital.beds_count?.toLocaleString() || 0}+`,
       accreditation: hospital.accreditations?.join(", ") || "Accredited",
       slug: hospital.slug,
-      photo_url: (hospital as any).logo_overridden ? hospital.logo_url : (hospitalImageBySlug[hospital.slug] || hospital.logo_url || "/images/hospital-apollo.webp"),
+      photo_url: hospital.logo_url || "/images/hospital-apollo.webp",
     }));
 
 

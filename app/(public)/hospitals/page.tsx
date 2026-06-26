@@ -4,7 +4,6 @@ import { Building2, MapPin } from "lucide-react";
 import Image from "next/image";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { fallbackHospitals } from "@/lib/fallback-data";
-import { hospitalImageBySlug } from "@/lib/doctors-data";
 import PageHero from "@/components/layout/PageHero";
 import SearchInput from "@/components/layout/SearchInput";
 import { JsonLd } from "@/components/shared/JsonLd";
@@ -38,7 +37,7 @@ export default async function HospitalsPage({
     beds: `${hospital.beds_count?.toLocaleString() || 0}+`,
     accreditation: hospital.accreditations?.join(", ") || "Accredited",
     slug: hospital.slug,
-    photo_url: (hospital as any).logo_overridden ? hospital.logo_url : (hospitalImageBySlug[hospital.slug] || hospital.logo_url || "/images/hospital-apollo.webp"),
+              photo_url: hospital.logo_url || "/images/hospital-apollo.webp",
   })) || [];
 
   const allHospitals = fetchedHospitals.length > 0 ? fetchedHospitals : fallbackHospitals;

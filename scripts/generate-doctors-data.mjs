@@ -55,10 +55,24 @@ function row(d) {
 }
 const j = JSON.stringify;
 
+/** Append numeric suffix on slug collisions within same hospital */
+function dedupSlugs(docs) {
+  const seen = new Set();
+  return docs.map(d => {
+    let slug = d.slug;
+    let n = 2;
+    while (seen.has(slug)) {
+      slug = d.slug + "-" + n++;
+    }
+    seen.add(slug);
+    return { ...d, slug };
+  });
+}
+
 // ── 1. APOLLO  (field: image, url) ───────────────────────────────────────────
 
 const apolloRaw = JSON.parse(readFileSync(join(src, "apollo.json"), "utf8"));
-const apolloDoctors = apolloRaw.map(d => ({
+const apolloDoctors = dedupSlugs(apolloRaw.map(d => ({
   name:        d.name,
   slug:        toSlug(d.name, "apollo"),
   specialty:   cleanSpecialty(d.medicalSpecialty),
@@ -72,7 +86,7 @@ const apolloDoctors = apolloRaw.map(d => ({
   expertise:   [],
   appointmentUrl: null,
   telephone:   d.telephone || "",
-}));
+})));
 console.log(`Apollo:   ${apolloDoctors.length}  (images: ${apolloDoctors.filter(x=>x.photo_url).length})`);
 
 // ── 2. MAX  (field: image, url — malformed outer {}) ─────────────────────────
@@ -82,7 +96,7 @@ const maxText = readFileSync(join(src, "max.json"), "utf8").trim();
 const maxInner = maxText.slice(1, maxText.lastIndexOf("}"));
 const maxRaw   = JSON.parse("[" + maxInner + "]");
 
-const maxDoctors = maxRaw.map(d => ({
+const maxDoctors = dedupSlugs(maxRaw.map(d => ({
   name:        d.name,
   slug:        toSlug(d.name, "max"),
   specialty:   cleanSpecialty(d.medicalSpecialty),
@@ -96,13 +110,13 @@ const maxDoctors = maxRaw.map(d => ({
   expertise:   [],
   appointmentUrl: null,
   telephone:   d.telephone || "",
-}));
+})));
 console.log(`Max:      ${maxDoctors.length}  (images: ${maxDoctors.filter(x=>x.photo_url).length})`);
 
 // ── 3. BLK-MAX  (field: imageUrl, profileUrl) ────────────────────────────────
 
 const blkRaw = JSON.parse(readFileSync(join(src, "blkmax_doctors.json"), "utf8"));
-const blkDoctors = blkRaw.map(d => ({
+const blkDoctors = dedupSlugs(blkRaw.map(d => ({
   name:        d.name,
   slug:        toSlug(d.name, "blk"),
   specialty:   d.specialities?.length ? d.specialities[d.specialities.length - 1] : "",
@@ -116,7 +130,7 @@ const blkDoctors = blkRaw.map(d => ({
   expertise:   d.specialities || [],
   appointmentUrl: d.appointmentUrl || null,
   telephone:   "",
-}));
+})));
 console.log(`BLK-Max:  ${blkDoctors.length}  (images: ${blkDoctors.filter(x=>x.photo_url).length})`);
 
 // ── 4. MEDANTA  (NO image field in JSON — construct from profileUrl slug) ─────
@@ -126,7 +140,7 @@ console.log(`BLK-Max:  ${blkDoctors.length}  (images: ${blkDoctors.filter(x=>x.p
 const MEDANTA_IMG_BASE = "https://medanta.s3.ap-south-1.amazonaws.com/all-doctor-with-slug";
 
 const medantaRaw = JSON.parse(readFileSync(join(src, "medanta_doctors.json"), "utf8"));
-const medantaDoctors = medantaRaw.map(d => {
+const medantaDoctors = dedupSlugs(medantaRaw.map(d => {
   const slug = d.profileUrl ? d.profileUrl.split("/").filter(Boolean).pop() : null;
   const photo = slug ? `${MEDANTA_IMG_BASE}/${slug}.png` : null;
   return {
@@ -144,7 +158,7 @@ const medantaDoctors = medantaRaw.map(d => {
     appointmentUrl: d.appointmentUrl || null,
     telephone:   "",
   };
-});
+}));
 console.log(`Medanta:  ${medantaDoctors.length}  (images: ${medantaDoctors.filter(x=>x.photo_url).length} — constructed from profileUrl slugs)`);
 
 // ── 5. ARTEMIS  (NO image field — profile URL only) ──────────────────────────
@@ -161,7 +175,7 @@ function nameFromProfileSlug(slug) {
     .join(" ");
 }
 
-const artemisDoctors = artemisRaw
+const artemisDoctors = dedupSlugs(artemisRaw
   .filter(d => typeof d.profile === "string" && d.profile.includes("/doctor/profile/"))
   .map(d => {
     const slug = d.profile.split("/").filter(Boolean).pop() || "";
@@ -182,13 +196,13 @@ const artemisDoctors = artemisRaw
       appointmentUrl: null,
       telephone:   "",
     };
-  });
+  }));
 console.log(`Artemis:  ${artemisDoctors.length}  (images: ${artemisDoctors.filter(x=>x.photo_url).length} — constructed from profileUrl slugs)`);
 
 // ── 6. PARAS  (field: image — already full URL, profileUrl) ──────────────────
 
 const parasRaw = JSON.parse(readFileSync(join(src, "paras_doctors.json"), "utf8"));
-const parasDoctors = parasRaw
+const parasDoctors = dedupSlugs(parasRaw
   .filter(d => d.name && d.name.trim())
   .map(d => {
     const fullName = /^Dr\.?\s/i.test(d.name) ? d.name : "Dr. " + d.name;
@@ -207,7 +221,7 @@ const parasDoctors = parasRaw
       appointmentUrl: null,
       telephone:   "",
     };
-  });
+  }));
 console.log(`Paras:    ${parasDoctors.length}  (images: ${parasDoctors.filter(x=>x.photo_url).length})`);
 
 // ── WRITE FILE ────────────────────────────────────────────────────────────────

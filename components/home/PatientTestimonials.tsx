@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Star } from "lucide-react";
 
@@ -12,6 +15,9 @@ interface Testimonial {
 }
 
 export default function PatientTestimonials({ testimonials = [] }: { testimonials?: Testimonial[] }) {
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const markFailed = (key: string) => setFailedImages(prev => new Set(prev).add(key));
+
   if (testimonials.length === 0) return null;
 
   const visible = testimonials.slice(0, 6);
@@ -27,9 +33,9 @@ export default function PatientTestimonials({ testimonials = [] }: { testimonial
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {visible.map((t, i) => (
             <div key={i} className="bg-white rounded-xl p-6 flex flex-col shadow-elevation-1">
-              {t.image_url && (
+              {t.image_url && !failedImages.has(`img-${i}`) && (
                 <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4">
-                  <img src={t.image_url} alt={t.name} className="w-full h-full object-cover" />
+                  <img src={t.image_url} alt={t.name} className="w-full h-full object-cover" onError={() => markFailed(`img-${i}`)} />
                 </div>
               )}
               <div className="flex gap-1 mb-4">

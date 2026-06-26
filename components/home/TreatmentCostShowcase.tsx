@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,14 +13,14 @@ const treatmentCosts = [
     cost: "$7,000 - $10,000",
     saving: "Save up to 90%",
     slug: "heart-bypass-surgery",
-    image: "https://satyughealthcare.com/uploads/treatment_package/155192473072.png",
+    image: "https://images.unsplash.com/photo-1631553096119-003c3d0e0e5a?w=600&q=80",
   },
   {
     name: "Knee Replacement Surgery",
     cost: "$6,500 - $8,500",
     saving: "Save up to 80%",
     slug: "knee-replacement",
-    image: "https://satyughealthcare.com/uploads/treatment_package/318445058417.jpg",
+    image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=600&q=80",
   },
   {
     name: "Liver Transplant",
@@ -40,7 +41,7 @@ const treatmentCosts = [
     cost: "$8,000 - $12,000",
     saving: "Save up to 82%",
     slug: "spine-surgery",
-    image: "https://satyughealthcare.com/uploads/treatment_package/146787701787.png",
+    image: "https://images.unsplash.com/photo-1579154204601-01588f351e67?w=600&q=80",
   },
   {
     name: "IVF Treatment",
@@ -54,18 +55,19 @@ const treatmentCosts = [
     cost: "$6,500 - $10,000",
     saving: "Save up to 85%",
     slug: "craniotomy-brain-tumor-surgery",
-    image: "https://satyughealthcare.com/uploads/treatment_package/216514607672.png",
+    image: "https://images.unsplash.com/photo-1551076805-e1869033e561?w=600&q=80",
   },
   {
     name: "Cardiac Surgery (Pediatric)",
     cost: "$7,500 - $12,000",
     saving: "Save up to 88%",
     slug: "heart-bypass-surgery",
-    image: "https://satyughealthcare.com/uploads/treatment_package/102136737103.png",
+    image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&q=80",
   },
 ];
 
 export default function TreatmentCostShowcase() {
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   return (
     <section className="bg-surface py-12 sm:py-huge overflow-hidden">
       <div className="container-cinematic">
@@ -98,13 +100,14 @@ export default function TreatmentCostShowcase() {
               className="group block bg-white rounded-xl border border-hairline-light overflow-hidden hover:shadow-elevation-3 hover:-translate-y-1 transition-all duration-300"
             >
               <div className="relative h-40 overflow-hidden">
-                <Image
+                {!failedImages.has(treatment.slug + i) && <Image
                   src={treatment.image}
                   alt={treatment.name}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                />
+                  onError={() => setFailedImages(prev => new Set(prev).add(treatment.slug + i))}
+                />}
                 <div className="absolute top-3 right-3">
                   <span className="inline-flex items-center gap-1 bg-green-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                     {treatment.saving}

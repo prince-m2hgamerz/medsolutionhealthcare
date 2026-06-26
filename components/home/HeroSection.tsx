@@ -24,10 +24,11 @@ interface HeroSectionProps {
   imageUrl?: string;
 }
 
-export default function HeroSection({ imageUrl = "https://satyughealthcare.com/uploads/hospitals/1580542668_Indraprastha-Apollo-Hospital_icon-600x586.jpg" }: HeroSectionProps) {
+export default function HeroSection({ imageUrl = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&q=75" }: HeroSectionProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("cost");
   const [searchQuery, setSearchQuery] = useState("");
+  const [heroError, setHeroError] = useState(false);
   const activeConfig = tabs.find((t) => t.id === activeTab) || tabs[0];
   const searchHref = (() => {
     const trimmed = searchQuery.trim();
@@ -45,14 +46,17 @@ export default function HeroSection({ imageUrl = "https://satyughealthcare.com/u
   return (
     <section className="relative text-white overflow-hidden min-h-[70vh] sm:min-h-[80vh] lg:min-h-[90vh] flex items-center">
       <div className="absolute inset-0">
-        <Image
-          src={imageUrl}
-          alt="World-class hospitals in India for medical tourism"
-          fill
-          sizes="100vw"
-          className="object-cover scale-105 blur-[2px]"
-          priority
-        />
+        {!heroError && (
+          <Image
+            src={imageUrl}
+            alt="World-class hospitals in India for medical tourism"
+            fill
+            sizes="100vw"
+            className="object-cover scale-105 blur-[2px]"
+            priority
+            onError={() => setHeroError(true)}
+          />
+        )}
       </div>
       <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/55 to-black/65" />
       <div className="container-cinematic relative z-10 py-12 sm:py-20 lg:py-32 w-full">

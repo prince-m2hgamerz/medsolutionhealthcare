@@ -35,13 +35,13 @@ function hashColor(name: string): string {
     "bg-accent/80", "bg-pistachio/80", "bg-aloe/80",
   ];
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  for (let i = 0; i < name.length; i++) hash = Math.trunc(hash * 31 + name.codePointAt(i)!);
   return colors[Math.abs(hash) % colors.length];
 }
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
-function AvatarPhoto({ doctor }: { doctor: Doctor }) {
+function AvatarPhoto({ doctor }: { readonly doctor: Doctor }) {
   const [err, setErr] = useState(false);
   if (!doctor.photo_url || err) {
     return (
@@ -63,7 +63,7 @@ function AvatarPhoto({ doctor }: { doctor: Doctor }) {
   );
 }
 
-function DoctorCard({ doctor, index }: { doctor: Doctor; index: number }) {
+function DoctorCard({ doctor, index }: { readonly doctor: Doctor; readonly index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -146,10 +146,10 @@ function FilterSection({
   defaultOpen = true,
   children,
 }: {
-  title: string;
-  icon?: React.ReactNode;
-  defaultOpen?: boolean;
-  children: React.ReactNode;
+  readonly title: string;
+  readonly icon?: React.ReactNode;
+  readonly defaultOpen?: boolean;
+  readonly children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -183,7 +183,7 @@ function FilterSection({
 
 // ─── main component ───────────────────────────────────────────────────────────
 
-export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doctor[] }) {
+export default function DoctorsClient({ doctors: doctorsProp }: { readonly doctors?: readonly Doctor[] }) {
   const allDoctors = doctorsProp ?? allDoctorsFallback;
   const router = useRouter();
   const params = useSearchParams();
@@ -192,7 +192,7 @@ export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doct
   const selectedHospital = params.get("hospital") ?? "";
   const selectedSpecialties = params.getAll("specialty");
   const selectedGender = params.get("gender") ?? "";
-  const page = parseInt(params.get("page") ?? "1", 10);
+  const page = Number.parseInt(params.get("page") ?? "1", 10);
 
   const [localQ, setLocalQ] = useState(q);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -458,7 +458,7 @@ export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doct
             <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
               <div>
                 <p className="text-body-md text-ink font-medium">
-                  {filtered.length.toLocaleString()} doctor{filtered.length !== 1 ? "s" : ""}
+                  {filtered.length.toLocaleString()} doctor{filtered.length === 1 ? "" : "s"}
                   {hasFilters && " found"}
                 </p>
                 {totalPages > 1 && (
@@ -511,17 +511,17 @@ export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doct
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 2)
                   .reduce<(number | "...")[]>((acc, p, idx, arr) => {
-                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("...");
+                    if (idx > 0 && p - arr[idx - 1] > 1) acc.push("...");
                     acc.push(p);
                     return acc;
                   }, [])
                   .map((item, idx) =>
                     item === "..." ? (
-                      <span key={`dots-${idx}`} className="text-shade-40 px-1">…</span>
+                      <span key={`ellipsis-${idx}`} className="text-shade-40 px-1">…</span>
                     ) : (
                       <button
                         key={item}
-                        onClick={() => goPage(item as number)}
+                        onClick={() => goPage(item)}
                         className={`w-10 h-10 rounded-lg text-caption border transition-all ${
                           safePage === item
                             ? "bg-ink text-on-primary border-ink"
@@ -591,7 +591,7 @@ export default function DoctorsClient({ doctors: doctorsProp }: { doctors?: Doct
   );
 }
 
-function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+function FilterChip({ label, onRemove }: { readonly label: string; readonly onRemove: () => void }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-canvas-night text-on-primary text-caption">
       {label}

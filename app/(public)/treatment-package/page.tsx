@@ -30,32 +30,32 @@ export default async function TreatmentPackagesPage({
 
   // Map DB slugs to real images from the 218 treatments data
   const treatmentImageMap: Record<string, string> = {
-    "knee-replacement": "https://satyughealthcare.com/uploads/treatment_package/318445058417.jpg",
-    "hip-replacement": "https://satyughealthcare.com/uploads/treatment_package/001428941542.jpg",
-    "spine-surgery": "https://satyughealthcare.com/uploads/treatment_package/146787701787.png",
-    "hair-transplant": "https://satyughealthcare.com/uploads/treatment_package/274716752857.png",
-    "ivf-treatment": "https://satyughealthcare.com/uploads/treatment_package/611820061165.jpeg",
-    "bariatric-surgery": "https://satyughealthcare.com/uploads/treatment_package/102136737103.png",
-    "heart-bypass-surgery": "https://satyughealthcare.com/uploads/treatment_package/155192473072.png",
-    "angioplasty": "https://satyughealthcare.com/uploads/treatment_package/796098408516.jpg",
-    "bone-marrow-transplant": "https://satyughealthcare.com/uploads/treatment_package/510593914830.jpg",
-    "liver-transplant": "https://satyughealthcare.com/uploads/treatment_package/071607183870.png",
-    "kidney-transplant": "https://satyughealthcare.com/uploads/treatment_package/884152601829.jpg",
-    "dental-implants": "https://satyughealthcare.com/uploads/treatment_package/116862023208.jpg",
-    "robotic-prostate-surgery": "https://satyughealthcare.com/uploads/treatment_package/104178948583.png",
-    "cataract-surgery": "https://satyughealthcare.com/uploads/treatment_package/545528290117.png",
-    "brain-tumor-surgery": "https://satyughealthcare.com/uploads/treatment_package/216514607672.png",
-    "liver-resection": "https://satyughealthcare.com/uploads/treatment_package/117582280413.jpg",
-    "aortic-valve-replacement": "https://satyughealthcare.com/uploads/treatment_package/816018845104.jpg",
-    "oncology-surgery": "https://satyughealthcare.com/uploads/treatment_package/786610918089.jpg",
-    "scoliosis-surgery": "https://satyughealthcare.com/uploads/treatment_package/728155135898.jpg",
-    "cochlear-implant": "https://satyughealthcare.com/uploads/treatment_package/151187600388.png",
-    "pacemaker-implant": "https://satyughealthcare.com/uploads/treatment_package/201163852742.png",
-    "cornea-transplant": "https://satyughealthcare.com/uploads/treatment_package/545528290117.png",
-    "gallbladder-surgery": "https://satyughealthcare.com/uploads/treatment_package/150734422166.jpg",
-    "hernia-surgery": "https://satyughealthcare.com/uploads/treatment_package/894020581845.jpg",
-    "thyroid-surgery": "https://satyughealthcare.com/uploads/treatment_package/094440568155.jpg",
-    "appendix-surgery": "https://satyughealthcare.com/uploads/treatment_package/160391619506.jpg",
+    "knee-replacement": "/images/treatment-knee.webp",
+    "hip-replacement": "/images/treatment-hip.webp",
+    "spine-surgery": "/images/treatment-spine.webp",
+    "hair-transplant": "/images/treatment-hair.webp",
+    "ivf-treatment": "/images/treatment-ivf.webp",
+    "bariatric-surgery": "/images/treatment-bariatric.webp",
+    "heart-bypass-surgery": "/images/treatment-heart-bypass.webp",
+    "angioplasty": "/images/treatment-angioplasty.webp",
+    "bone-marrow-transplant": "/images/treatment-bmt.webp",
+    "liver-transplant": "/images/treatment-liver.webp",
+    "kidney-transplant": "/images/treatment-kidney.webp",
+    "dental-implants": "/images/treatment-dental.webp",
+    "robotic-prostate-surgery": "/images/treatment-prostate.webp",
+    "cataract-surgery": "/images/treatment-cataract.webp",
+    "brain-tumor-surgery": "/images/treatment-oncology.webp",
+    "liver-resection": "/images/treatment-liver.webp",
+    "aortic-valve-replacement": "/images/treatment-cardiac.webp",
+    "oncology-surgery": "/images/treatment-oncology.webp",
+    "scoliosis-surgery": "/images/treatment-spine.webp",
+    "cochlear-implant": "/images/treatment-dental.webp",
+    "pacemaker-implant": "/images/treatment-cardiac.webp",
+    "cornea-transplant": "/images/treatment-cataract.webp",
+    "gallbladder-surgery": "/images/treatment-ortho.webp",
+    "hernia-surgery": "/images/treatment-ortho.webp",
+    "thyroid-surgery": "/images/treatment-oncology.webp",
+    "appendix-surgery": "/images/treatment-ortho.webp",
   };
 
   const fetchedTreatments = raw?.map((treatment) => {
@@ -72,7 +72,7 @@ export default async function TreatmentPackagesPage({
       slug: treatment.slug,
       category: treatment.category || "General Surgery",
       description: treatment.description || "",
-      image_url: treatment.image_url || directImage || fuzzyMatch?.image_url || "https://satyughealthcare.com/uploads/treatment_package/216514607672.png",
+      image_url: treatment.image_url || directImage || fuzzyMatch?.image_url || "/images/placeholder.svg",
     };
   }) || [];
 
@@ -169,7 +169,7 @@ export default async function TreatmentPackagesPage({
                   <Link key={treatment.slug} href={`/treatment-package/${treatment.slug}`} className="group overflow-hidden bg-canvas-cream rounded-xl border border-hairline-light hover:shadow-elevation-3 hover:-translate-y-1 transition-all duration-300">
                     <div className="relative h-36">
                       <Image
-                        src={treatment.image_url || "https://satyughealthcare.com/uploads/treatment_package/216514607672.png"}
+                        src={treatment.image_url || "/images/placeholder.svg"}
                         alt={treatment.name}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

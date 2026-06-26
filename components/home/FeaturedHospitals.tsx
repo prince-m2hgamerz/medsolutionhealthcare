@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Building2, MapPin } from "lucide-react";
@@ -16,6 +17,7 @@ interface Hospital {
 }
 
 export default function FeaturedHospitals({ hospitals = [] }: { hospitals?: Hospital[] }) {
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   if (hospitals.length === 0) return null;
   return (
     <section className="bg-surface py-12 sm:py-huge">
@@ -41,13 +43,14 @@ export default function FeaturedHospitals({ hospitals = [] }: { hospitals?: Hosp
           {hospitals.map((hospital) => (
             <Link key={hospital.slug} href={`/hospitals/${hospital.slug}`} className="group block bg-white rounded-xl border border-hairline-light overflow-hidden hover:shadow-elevation-3 transition-all duration-300">
               <div className="relative h-48 overflow-hidden">
-                <Image
-                  src={hospital.photo_url || "https://safartibbi.com/wp-content/uploads/2022/11/apolo-1.jpg"}
+                {!failedImages.has(hospital.slug) && <Image
+                  src={hospital.photo_url || "/images/placeholder.svg"}
                   alt={hospital.name}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                />
+                  onError={() => setFailedImages(prev => new Set(prev).add(hospital.slug))}
+                />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 <div className="absolute bottom-3 left-4">
                   <span className="pill-tag !text-micro !px-2 !py-0.5">{hospital.accreditation}</span>

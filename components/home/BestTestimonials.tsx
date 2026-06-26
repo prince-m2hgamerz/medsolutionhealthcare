@@ -19,6 +19,8 @@ interface Testimonial {
 export default function BestTestimonials({ testimonials = [] }: { testimonials?: Testimonial[] }) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const markFailed = (key: string) => setFailedImages(prev => new Set(prev).add(key));
   const closeVideo = () => { setActiveVideo(null); setActiveVideoUrl(null); };
 
   if (testimonials.length === 0) return null;
@@ -68,11 +70,14 @@ export default function BestTestimonials({ testimonials = [] }: { testimonials?:
                     else if (t.video_url) setActiveVideoUrl(t.video_url);
                   }}
                 >
-                  <img
-                    src={t.image_url || `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`}
-                    alt={t.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  {!failedImages.has(`video-${i}`) && (
+                    <img
+                      src={t.image_url || `https://img.youtube.com/vi/${t.videoId}/hqdefault.jpg`}
+                      alt={t.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={() => markFailed(`video-${i}`)}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/30 transition-colors">
                     <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
                       <Play size={28} className="text ml-1" fill="currentColor" />
@@ -82,12 +87,13 @@ export default function BestTestimonials({ testimonials = [] }: { testimonials?:
                     Video
                   </div>
                 </div>
-              ) : t.image_url ? (
+              ) : t.image_url && !failedImages.has(`img-${i}`) ? (
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
                     src={t.image_url}
                     alt={t.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={() => markFailed(`img-${i}`)}
                   />
                 </div>
               ) : null}

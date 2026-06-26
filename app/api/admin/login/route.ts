@@ -18,7 +18,11 @@ export async function POST(request: Request) {
     }
 
     if (email === validEmail && password === validPass) {
-      const response = NextResponse.json({ success: true });
+      const response = NextResponse.json({
+        success: true,
+        token: sessionToken,
+        email: validEmail,
+      });
 
       response.cookies.set("admin_session", sessionToken, {
         httpOnly: true,

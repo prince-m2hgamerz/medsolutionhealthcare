@@ -105,6 +105,24 @@ export default async function ContactPage() {
           </div>
         </div>
       </section>
+
+      <section className="bg-canvas-cream py-huge border-t border-hairline-light">
+        <div className="container-cinematic">
+          <h2 className="font-display text-heading-xl text-ink mb-8">Find Us on Map</h2>
+          <div className="overflow-hidden rounded-xl border border-hairline-light shadow-elevation-3">
+            <iframe
+              src="https://www.google.com/maps?q=Unit+No.+36+Living+Style+Mall+Jasola+New+Delhi+110025&output=embed"
+              width="100%"
+              height="400"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Med Solution Healthcare Location"
+            />
+          </div>
+        </div>
+      </section>
     </>
   );
 }

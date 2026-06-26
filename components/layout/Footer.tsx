@@ -76,6 +76,20 @@ Jasola New Delhi 110025</span>
               </div>
             </div>
 
+            {/* Map */}
+            <div className="mt-6 overflow-hidden rounded-lg border border-hairline-light">
+              <iframe
+                src="https://www.google.com/maps?q=Unit+No.+36+Living+Style+Mall+Jasola+New+Delhi+110025&output=embed"
+                width="100%"
+                height="160"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Med Solution Healthcare Location"
+              />
+            </div>
+
             {/* Language Switcher */}
             <div className="mt-6 pt-6 border-t border-hairline-light">
               <h4 className="text-caption uppercase tracking-widest text-shade-40 mb-3">Language</h4>

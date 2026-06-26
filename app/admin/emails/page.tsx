@@ -35,7 +35,7 @@ export default function AdminEmailsPage() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [search, setSearch] = useState("")
   const [deletingId, setDeletingId] = useState<number | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fetchEmails = useCallback(async (cursorVal?: number) => {
     if (cursorVal) {

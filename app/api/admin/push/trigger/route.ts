@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { checkAdmin } from '@/lib/admin-auth'
 import { getActiveSubscriptions } from '@/lib/pwa'
 import { sendPushNotification } from '@/lib/pwa/notification'
+import { sendTelegramAlert } from '@/lib/telegram'
 import type { NotificationPayload } from '@/types/pwa'
 
 export async function POST(request: Request) {
@@ -18,15 +19,18 @@ export async function POST(request: Request) {
       )
     }
 
+    // Send Telegram as well
+    await sendTelegramAlert({ name: 'Admin', form_type: 'Broadcast', message: `${body.title}: ${body.body}` } as Record<string, unknown>)
+
     const subscriptions = await getActiveSubscriptions('admin')
 
     if (subscriptions.length === 0) {
-      return NextResponse.json({ sent: 0, total: 0 })
+      return NextResponse.json({ telegram: true, sent: 0, total: 0 })
     }
 
     const result = await sendPushNotification(subscriptions, body)
 
-    return NextResponse.json({ sent: result.success, total: subscriptions.length })
+    return NextResponse.json({ telegram: true, sent: result.success, total: subscriptions.length })
   } catch (error) {
     console.error('Failed to send admin push notification:', error)
     return NextResponse.json(

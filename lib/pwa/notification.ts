@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { configureWebPush } from './vapid'
+import { removeSubscription } from './subscription-manager'
 import type { NotificationPayload } from '@/types/pwa'
 
 export interface PushSubscriptionRow {
@@ -34,8 +35,15 @@ export async function sendPushNotification(
     if (result.status === 'fulfilled') {
       success++
     } else {
+      const reason = result.reason
+      if (reason?.statusCode === 410) {
+        const sub = subscriptions[results.indexOf(result)]
+        if (sub?.endpoint) {
+          removeSubscription(sub.endpoint)
+        }
+      }
       failed++
-      console.error('Push notification failed:', result.reason)
+      console.error('Push notification failed:', reason)
     }
   }
 

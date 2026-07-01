@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 import { sendPushNotification } from "@/lib/pwa/notification";
 import { getActiveSubscriptions } from "@/lib/pwa/subscription-manager";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 export async function POST(request: Request) {
   try {
@@ -43,16 +44,17 @@ export async function POST(request: Request) {
 
     const lead = data as Record<string, unknown>;
 
-    // Send email notifications and push notifications (non-blocking)
+    // Send email, push, and Telegram notifications (non-blocking)
     Promise.allSettled([
       sendLeadNotification(lead),
       sendCustomerConfirmation(lead),
+      sendTelegramAlert(lead),
       getActiveSubscriptions().then((subscriptions) =>
         sendPushNotification(subscriptions, {
           title: "New Lead: " + (lead.name || "Unknown"),
           body: `${lead.form_type || "Contact"} from ${(lead as { country?: string }).country || "N/A"}`,
-          icon: "/icons/icon-192x192.png",
-          badge: "/icons/icon-96x96.png",
+          icon: "/newlogo/logo-mark.png",
+          badge: "/newlogo/logo-mark.png",
           data: { url: "/admin/leads" },
         })
       ),

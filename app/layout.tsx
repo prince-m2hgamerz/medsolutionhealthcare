@@ -31,9 +31,9 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   alternates: { canonical: siteUrl },
   icons: {
-    icon: "/icon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/icon.svg",
+    icon: "/newlogo/logo-mark.png",
+    shortcut: "/newlogo/logo-mark.png",
+    apple: "/newlogo/logo-mark.png",
   },
   openGraph: {
     title: "Med Solution Healthcare - Medical Tourism in India",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     creator: "@medsolutionhc",
     title: "Med Solution Healthcare - Medical Tourism in India",
     description: "Connect with India's top hospitals and doctors for affordable, world-class medical treatment.",
-    images: ["/opengraph-image"],
+    images: ["/opengraph-image.png"],
   },
   other: {
     "google-site-verification": "REPLACE_WITH_YOUR_GSC_CODE",
@@ -85,8 +85,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Med Solution" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
-        <link rel="apple-touch-startup-image" href="/icons/icon-512.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png" />
+        <link rel="apple-touch-startup-image" href="/newlogo/logo-mark-badge.png" />
       </head>
       <body className="font-sans antialiased">
         <RollbarProvider>
@@ -94,6 +94,9 @@ export default function RootLayout({
           <CookieConsent />
           <PwaProvider />
         </RollbarProvider>
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){function r(e,t){try{navigator.sendBeacon("/api/report-error",JSON.stringify({message:e,stack:t?.stack,url:location.href,metadata:{source:"client"}}))}catch{}}window.onerror=function(e,s,l,c,err){r(String(e),err)};window.onunhandledrejection=function(e){r(e.reason?.message||String(e.reason),e.reason)};})()`
+        }} />
       </body>
     </html>
   );

@@ -55,6 +55,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
 
   if (url.origin !== self.location.origin) return
+  if (request.method !== 'GET') return
 
   if (isApiRequest(url)) {
     event.respondWith(networkFirstStrategy(request, API_CACHE))

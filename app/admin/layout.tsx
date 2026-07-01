@@ -24,6 +24,7 @@ import {
   Menu,
   X,
   Download,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import InstallAdminPWA from "@/components/admin/InstallAdminPWA";
@@ -51,6 +52,7 @@ const sidebarGroups = [
   {
     label: "System",
     links: [
+      { label: "Profile", href: "/admin/profile", icon: User },
       { label: "Settings", href: "/admin/settings", icon: Settings },
       { label: "Users", href: "/admin/users", icon: UserCog },
       { label: "Subscribers", href: "/admin/subscribers", icon: Mail },

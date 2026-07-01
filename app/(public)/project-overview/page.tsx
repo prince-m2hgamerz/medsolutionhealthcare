@@ -11,6 +11,7 @@ import {
   Grid3X3, ChevronDown, PieChart, Cpu, Eye,
   Share2, Link2, ArrowUp, Send
 } from "lucide-react"
+import MarkdownRenderer from "@/components/MarkdownRenderer"
 
 function useScrollPosition() {
   const [scrollY, setScrollY] = useState(0)
@@ -296,6 +297,16 @@ const techRadar = [
 export default function ProjectOverviewPage() {
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  const [readmeContent, setReadmeContent] = useState<string | null>(null)
+  const [readmeLoading, setReadmeLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/readme")
+      .then((r) => r.json())
+      .then((data) => { setReadmeContent(data.content ?? null); setReadmeLoading(false) })
+      .catch(() => setReadmeLoading(false))
+  }, [])
+
   const scrollY = useScrollPosition()
   const showBackToTop = scrollY > 600
 
@@ -701,6 +712,45 @@ export default function ProjectOverviewPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+      </FadeInSection>
+
+      {/* ── README VIEWER ── */}
+      <FadeInSection delay={500}>
+        <section className="px-6 py-20">
+        <div className="max-w-cinematic mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-primary/5 text-primary text-sm font-medium mb-4">
+              <FileText size={14} />
+              README
+            </div>
+            <h2 className="font-heading text-display-md text-primary mb-3">
+              Full Project README
+            </h2>
+            <p className="text-neutral-600 max-w-2xl mx-auto">
+              The complete project documentation, automatically loaded from the repository's README.md.
+            </p>
+          </div>
+
+          {readmeLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {!readmeLoading && readmeContent && (
+            <div className="bg-white rounded-xl shadow-elevation-2 border border-hairline-light p-6 md:p-10 max-w-4xl mx-auto">
+              <MarkdownRenderer content={readmeContent} />
+            </div>
+          )}
+
+          {!readmeLoading && !readmeContent && (
+            <div className="text-center py-16 text-neutral-500">
+              <FileText size={40} className="mx-auto mb-3 opacity-40" />
+              <p>Unable to load README.md content.</p>
+            </div>
+          )}
         </div>
       </section>
       </FadeInSection>

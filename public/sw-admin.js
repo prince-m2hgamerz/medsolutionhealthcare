@@ -55,6 +55,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
 
   if (url.origin !== self.location.origin) return
+  if (request.method !== 'GET') return
 
   if (isAdminApiRequest(url)) {
     event.respondWith(networkFirstStrategy(request, ADMIN_API_CACHE))

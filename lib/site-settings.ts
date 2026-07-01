@@ -49,6 +49,33 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   images: {},
 };
 
+export const ENV_OVERRIDEABLE_KEYS: (keyof SiteSettings)[] = [
+  "site_name",
+  "whatsapp_number",
+  "contact_phone",
+  "contact_email",
+  "admin_email",
+  "facebook_url",
+  "instagram_url",
+  "twitter_url",
+  "youtube_url",
+];
+
+export function getEnvOverriddenKeys(): string[] {
+  return ENV_OVERRIDEABLE_KEYS.filter((key) => process.env[`SITE_SETTING_${key.toUpperCase()}`]);
+}
+
+export function getEnvOverrides(): Record<string, string> {
+  const overrides: Record<string, string> = {};
+  for (const key of ENV_OVERRIDEABLE_KEYS) {
+    const envValue = process.env[`SITE_SETTING_${key.toUpperCase()}`];
+    if (envValue) {
+      overrides[key] = envValue;
+    }
+  }
+  return overrides;
+}
+
 function createAdminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,6 +109,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
   const imageData = data.filter((e) => SITE_IMAGE_KEYS.includes(e.key));
   settings.images = mergeSiteImages(imageData.length > 0 ? imageData : undefined);
+
+  const envOverrides = getEnvOverrides();
+  for (const [key, value] of Object.entries(envOverrides)) {
+    if (key in settings && key !== "images") {
+      (settings as Record<string, unknown>)[key] = value;
+    }
+  }
 
   return settings;
 }

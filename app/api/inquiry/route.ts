@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 import { sendPushNotification } from "@/lib/pwa/notification";
 import { getActiveSubscriptions } from "@/lib/pwa/subscription-manager";
+import { sendTelegramAlert } from "@/lib/telegram";
 
 const ALLOWED_FIELDS = ["name", "email", "phone", "message", "treatment", "country", "medical_condition"] as const;
 
@@ -48,12 +49,13 @@ export async function POST(request: Request) {
     await Promise.allSettled([
       sendLeadNotification(lead),
       sendCustomerConfirmation(lead),
+      sendTelegramAlert(lead),
       getActiveSubscriptions().then((subscriptions) =>
         sendPushNotification(subscriptions, {
           title: "New Inquiry: " + (lead.name || "Unknown"),
           body: `Treatment: ${(lead as { treatment?: string }).treatment || "N/A"}`,
-          icon: "/icons/icon-192x192.png",
-          badge: "/icons/icon-96x96.png",
+          icon: "/newlogo/logo-mark.png",
+          badge: "/newlogo/logo-mark.png",
           data: { url: "/admin/inquiries" },
         })
       ),

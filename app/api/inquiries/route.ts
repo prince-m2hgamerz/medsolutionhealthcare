@@ -51,8 +51,8 @@ export async function POST(request: Request) {
         sendPushNotification(subscriptions, {
           title: "New Patient Inquiry: " + (lead.name || "Unknown"),
           body: `Treatment: ${(lead as { treatment?: string }).treatment || "N/A"} | Country: ${lead.country || "N/A"}`,
-          icon: "/icons/icon-192x192.png",
-          badge: "/icons/icon-96x96.png",
+          icon: "/newlogo/logo-mark.png",
+          badge: "/newlogo/logo-mark.png",
           data: { url: "/admin/inquiries" },
         })
       ),

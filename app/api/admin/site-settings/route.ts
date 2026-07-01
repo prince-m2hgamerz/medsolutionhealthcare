@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { checkAdmin } from "@/lib/admin-auth";
+import { checkAdmin, requireAdminRole } from "@/lib/admin-auth";
+import { getEnvOverriddenKeys } from "@/lib/site-settings";
 
 export async function GET() {
   const unauthorized = await checkAdmin();
@@ -17,12 +18,15 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data ?? []);
+  return NextResponse.json({ data: data ?? [], envOverrides: getEnvOverriddenKeys() });
 }
 
 export async function PUT(request: Request) {
   const unauthorized = await checkAdmin();
   if (unauthorized) return unauthorized;
+
+  const forbidden = await requireAdminRole("super_admin");
+  if (forbidden) return forbidden;
 
   const body: { key: string; value: string }[] = await request.json();
 

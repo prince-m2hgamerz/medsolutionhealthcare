@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save } from "lucide-react";
+import { Save, Server } from "lucide-react";
 import ImageUploadField from "@/components/admin/ImageUploadField";
 import { SITE_IMAGE_DEFAULTS, SITE_IMAGE_KEYS, SITE_IMAGE_SLOTS, type SiteImageKey } from "@/lib/site-images";
 
@@ -26,31 +26,54 @@ const defaultSettings: Setting[] = [
   { label: "YouTube URL", key: "youtube_url", value: "https://youtube.com/@medsolutionhealthcare" },
 ];
 
+const envLabel: Record<string, string> = {
+  site_name: "SITE_SETTING_SITE_NAME",
+  whatsapp_number: "SITE_SETTING_WHATSAPP_NUMBER",
+  contact_phone: "SITE_SETTING_CONTACT_PHONE",
+  contact_email: "SITE_SETTING_CONTACT_EMAIL",
+  admin_email: "SITE_SETTING_ADMIN_EMAIL",
+  facebook_url: "SITE_SETTING_FACEBOOK_URL",
+  instagram_url: "SITE_SETTING_INSTAGRAM_URL",
+  twitter_url: "SITE_SETTING_TWITTER_URL",
+  youtube_url: "SITE_SETTING_YOUTUBE_URL",
+};
+
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState(defaultSettings);
   const [images, setImages] = useState<Record<SiteImageKey, string>>(SITE_IMAGE_DEFAULTS);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [envOverrides, setEnvOverrides] = useState<string[]>([]);
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/site-settings").then((res) => res.json()).then((data) => {
-      if (data && data.length > 0) {
+      if (data && data.data && data.data.length > 0) {
         const merged = defaultSettings.map((s) => {
-          const found = data.find((d: Record<string, unknown>) => d.key === s.key);
+          const found = data.data.find((d: Record<string, unknown>) => d.key === s.key);
           return found ? { ...s, value: found.value as string } : s;
         });
         setSettings(merged);
 
         setImages((current) => {
           const next = { ...current };
-          data.forEach((item: Record<string, unknown>) => {
+          data.data.forEach((item: Record<string, unknown>) => {
             if (typeof item.key === "string" && item.key in SITE_IMAGE_DEFAULTS && typeof item.value === "string") {
               next[item.key as SiteImageKey] = item.value;
             }
           });
           return next;
         });
+      }
+      if (data.envOverrides) {
+        setEnvOverrides(data.envOverrides);
+      }
+    });
+
+    fetch("/api/admin/profile").then((res) => res.json()).then((data) => {
+      if (data && data.role) {
+        setUserRole(data.role);
       }
     });
   }, []);
@@ -88,6 +111,8 @@ export default function AdminSettingsPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const envOverriddenSet = new Set(envOverrides);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
@@ -109,20 +134,53 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {settings.map((setting) => (
-          <div key={setting.key} className="bg-surface rounded-lg border border-border p-5">
-            <label className="block text-caption text-text-light uppercase tracking-wider mb-2">
-              {setting.label}
-            </label>
-            <input
-              type="text"
-              value={setting.value}
-              onChange={(e) => updateSetting(setting.key, e.target.value)}
-              className="w-full border border-border rounded-md px-4 py-2.5 text-body-md text-text focus:outline-none focus:border-border-focus transition-colors"
-            />
+      {userRole === "super_admin" && envOverrides.length > 0 && (
+        <div className="bg-surface rounded-lg border border-amber-200 p-5 mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Server size={18} className="text-amber-600" />
+            <h2 className="font-display text-heading-md text-text">System Config — Environment Overrides</h2>
           </div>
-        ))}
+          <p className="text-body-md text-text-muted mb-4">
+            These settings are controlled by environment variables. The values below are read-only and override any database values.
+          </p>
+          <div className="space-y-2">
+            {envOverrides.map((key) => (
+              <div key={key} className="flex items-center justify-between rounded-md bg-amber-50/50 px-4 py-2.5">
+                <span className="text-body-md font-medium text-text capitalize">{key.replace(/_/g, " ")}</span>
+                <code className="rounded bg-amber-100 px-2.5 py-0.5 text-caption font-mono text-amber-800">
+                  {envLabel[key] || `SITE_SETTING_${key.toUpperCase()}`}
+                </code>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {settings.map((setting) => {
+          const isEnvOverridden = envOverriddenSet.has(setting.key);
+          return (
+            <div key={setting.key} className={`bg-surface rounded-lg border p-5 ${isEnvOverridden ? "border-amber-200" : "border-border"}`}>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-caption text-text-light uppercase tracking-wider">
+                  {setting.label}
+                </label>
+                {isEnvOverridden && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-caption font-medium text-amber-700">
+                    <Server size={12} /> Env
+                  </span>
+                )}
+              </div>
+              <input
+                type="text"
+                value={setting.value}
+                onChange={(e) => updateSetting(setting.key, e.target.value)}
+                disabled={isEnvOverridden}
+                className="w-full border border-border rounded-md px-4 py-2.5 text-body-md text-text focus:outline-none focus:border-border-focus transition-colors disabled:bg-surface-alt disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </div>
+          );
+        })}
       </div>
 
       <div className="mt-10">

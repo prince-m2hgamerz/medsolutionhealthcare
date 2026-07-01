@@ -1,0 +1,1 @@
+ALTER TABLE admin_users ADD COLUMN auth_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;

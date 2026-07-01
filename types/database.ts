@@ -145,6 +145,8 @@ export interface AdminUser {
   id: string;
   email: string;
   role: "super_admin" | "editor" | "viewer";
+  name: string | null;
+  auth_id: string | null;
   created_at: string;
 }
 

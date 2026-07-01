@@ -166,11 +166,12 @@ export default function Navbar() {
             className="shrink-0 flex items-center gap-3 min-w-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2"
           >
             <Image
-              src="/leaf.svg"
+              src="/newlogo/logo-mark.png"
               alt=""
-              width={26}
+              width={32}
               height={32}
               className="shrink-0"
+              style={{ width: 32, height: 32 }}
               priority
             />
             <div className="flex flex-col">

@@ -30,11 +30,19 @@ export default function AdminLoginPage() {
       return;
     }
 
-    await fetch("/api/admin/login", {
+    const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
+
+    if (!res.ok) {
+      const { error } = await res.json();
+      setError(error || "Admin access denied");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
 
     // Request notification permission after successful login
     if ("Notification" in window && Notification.permission === "default") {

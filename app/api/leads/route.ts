@@ -51,8 +51,8 @@ export async function POST(request: Request) {
         sendPushNotification(subscriptions, {
           title: "New Lead: " + (lead.name || "Unknown"),
           body: `${lead.form_type || "Contact"} from ${(lead as { country?: string }).country || "N/A"}`,
-          icon: "/icons/icon-192.png",
-          badge: "/icons/icon-96.png",
+          icon: "/icons/icon-192x192.png",
+          badge: "/icons/icon-96x96.png",
           data: { url: "/admin/leads" },
         })
       ),

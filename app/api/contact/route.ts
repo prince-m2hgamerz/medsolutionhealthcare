@@ -50,8 +50,8 @@ export async function POST(request: Request) {
         sendPushNotification(subscriptions, {
           title: "New Contact: " + (lead.name || "Unknown"),
           body: `${(lead as { message?: string }).message || "No message"}`,
-          icon: "/icons/icon-192.png",
-          badge: "/icons/icon-96.png",
+          icon: "/icons/icon-192x192.png",
+          badge: "/icons/icon-96x96.png",
           data: { url: "/admin/leads" },
         })
       ),

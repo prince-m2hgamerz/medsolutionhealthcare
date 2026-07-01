@@ -74,7 +74,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
-        <link rel="manifest" href="/manifest.json" />
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){var m=document.createElement("link");m.rel="manifest";m.href=location.pathname.startsWith("/admin")?"/manifest-admin.json":"/manifest.json";document.head.appendChild(m)})()`
+        }} />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://cjqfgshjpqpfcjdvfpgc.supabase.co"} />
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://cjqfgshjpqpfcjdvfpgc.supabase.co"} />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

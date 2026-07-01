@@ -71,18 +71,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     meta.content = "noindex, nofollow";
     document.head.appendChild(meta);
 
-    const existingManifest = document.querySelector('link[rel="manifest"]');
-    if (existingManifest) {
-      existingManifest.remove();
-    }
-    const adminManifest = document.createElement("link");
-    adminManifest.rel = "manifest";
-    adminManifest.href = "/manifest-admin.json";
-    document.head.appendChild(adminManifest);
-
     return () => {
       meta.remove();
-      adminManifest.remove();
     };
   }, []);
   const router = useRouter();

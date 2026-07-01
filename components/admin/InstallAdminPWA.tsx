@@ -8,13 +8,25 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
 }
 
+function getInstallInstructions() {
+  const ua = navigator.userAgent.toLowerCase()
+  if (ua.includes('edg')) return 'Click the ⋯ menu → Apps → Install this site as an app'
+  if (ua.includes('chrome')) return 'Click the ⋮ menu → Install "MedSolution Admin"'
+  if (ua.includes('firefox')) return 'Firefox does not support PWA installation on desktop.'
+  if (ua.includes('safari')) return 'Tap the Share icon → Add to Home Screen'
+  return 'Use your browser\'s menu to install this app.'
+}
+
 export default function InstallAdminPWA() {
+  const [showManual, setShowManual] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstallable, setIsInstallable] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
   const [isPushSupported, setIsPushSupported] = useState(false)
   const [isPushSubscribed, setIsPushSubscribed] = useState(false)
   const [isRegistering, setIsRegistering] = useState(false)
+  const [swRegistered, setSwRegistered] = useState(false)
+  const [showFallback, setShowFallback] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -27,6 +39,25 @@ export default function InstallAdminPWA() {
     if (typeof window === 'undefined') return
     setIsPushSupported('serviceWorker' in navigator && 'PushManager' in window)
   }, [])
+
+  const registerAdminSw = useCallback(async () => {
+    if (!('serviceWorker' in navigator)) return null
+    try {
+      const registration = await navigator.serviceWorker.register('/sw-admin.js', {
+        scope: '/admin',
+      })
+      await navigator.serviceWorker.ready
+      setSwRegistered(true)
+      return registration
+    } catch (e) {
+      console.error('Failed to register admin SW:', e)
+      return null
+    }
+  }, [])
+
+  useEffect(() => {
+    registerAdminSw()
+  }, [registerAdminSw])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -44,18 +75,14 @@ export default function InstallAdminPWA() {
     return () => window.removeEventListener('appinstalled', handler)
   }, [])
 
-  const registerAdminSw = useCallback(async () => {
-    if (!('serviceWorker' in navigator)) return null
-    try {
-      const registration = await navigator.serviceWorker.register('/sw-admin.js', {
-        scope: '/admin',
-      })
-      await navigator.serviceWorker.ready
-      return registration
-    } catch {
-      return null
+  useEffect(() => {
+    if (isInstallable || isInstalled) {
+      setShowFallback(false)
+      return
     }
-  }, [])
+    const timer = setTimeout(() => setShowFallback(true), 5000)
+    return () => clearTimeout(timer)
+  }, [isInstallable, isInstalled])
 
   const subscribeToPush = useCallback(async () => {
     if (!isPushSupported) return
@@ -97,7 +124,8 @@ export default function InstallAdminPWA() {
       if (response.ok) {
         setIsPushSubscribed(true)
       }
-    } catch {
+    } catch (e) {
+      console.error('Failed to subscribe to push:', e)
     } finally {
       setIsRegistering(false)
     }
@@ -122,17 +150,35 @@ export default function InstallAdminPWA() {
         Mobile App
       </div>
       <div className="space-y-1.5">
-        {!isInstalled && isInstallable && (
-          <button
-            onClick={handleInstall}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-            </svg>
-            Install Admin App
-          </button>
-        )}
+          {!isInstalled && isInstallable && (
+            <button
+              onClick={handleInstall}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+              </svg>
+              Install Admin App
+            </button>
+          )}
+          {!isInstalled && !isInstallable && showFallback && swRegistered && (
+            <div>
+              <button
+                onClick={() => setShowManual((v) => !v)}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+                </svg>
+                Install Admin App
+              </button>
+              {showManual && (
+                <p className="mt-1.5 px-3 py-2 text-xs text-gray-500 bg-gray-800/50 rounded-lg leading-relaxed">
+                  {getInstallInstructions()}
+                </p>
+              )}
+            </div>
+          )}
         {isPushSupported && !isPushSubscribed && (
           <button
             onClick={subscribeToPush}

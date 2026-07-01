@@ -1,1 +1,1 @@
-ALTER TABLE testimonials ADD COLUMN created_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();

@@ -1,1 +1,1 @@
-ALTER TABLE testimonials ADD COLUMN image_url TEXT;
+ALTER TABLE testimonials ADD COLUMN IF NOT EXISTS image_url TEXT;

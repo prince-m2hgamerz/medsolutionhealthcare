@@ -8,6 +8,17 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
 }
 
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+  for (let i = 0; i < rawData.length; i++) {
+    outputArray[i] = rawData.charCodeAt(i)
+  }
+  return outputArray
+}
+
 function getInstallInstructions() {
   const ua = navigator.userAgent.toLowerCase()
   if (ua.includes('edg')) return 'Click the ⋯ menu → Apps → Install this site as an app'
@@ -107,7 +118,7 @@ export default function InstallAdminPWA() {
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: publicKey,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
       })
 
       const subJson = subscription.toJSON()

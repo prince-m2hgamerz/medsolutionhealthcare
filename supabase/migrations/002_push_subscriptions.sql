@@ -14,20 +14,35 @@ CREATE INDEX IF NOT EXISTS idx_push_subscriptions_expires_at ON push_subscriptio
 ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- Only allow the service role to manage subscriptions
-CREATE POLICY "Service role can manage push subscriptions" ON push_subscriptions
-  FOR ALL
-  TO service_role
-  USING (true)
-  WITH CHECK (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'push_subscriptions' AND policyname = 'Service role can manage push subscriptions') THEN
+    CREATE POLICY "Service role can manage push subscriptions" ON push_subscriptions
+      FOR ALL
+      TO service_role
+      USING (true)
+      WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Allow anon users to insert their own subscription
-CREATE POLICY "Anyone can upsert subscriptions" ON push_subscriptions
-  FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'push_subscriptions' AND policyname = 'Anyone can upsert subscriptions') THEN
+    CREATE POLICY "Anyone can upsert subscriptions" ON push_subscriptions
+      FOR INSERT
+      TO anon, authenticated
+      WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Allow anon users to delete by endpoint
-CREATE POLICY "Anyone can delete by endpoint" ON push_subscriptions
-  FOR DELETE
-  TO anon, authenticated
-  USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'push_subscriptions' AND policyname = 'Anyone can delete by endpoint') THEN
+    CREATE POLICY "Anyone can delete by endpoint" ON push_subscriptions
+      FOR DELETE
+      TO anon, authenticated
+      USING (true);
+  END IF;
+END $$;

@@ -1,1 +1,1 @@
-ALTER TABLE hospitals ADD COLUMN logo_overridden BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE hospitals ADD COLUMN IF NOT EXISTS logo_overridden BOOLEAN NOT NULL DEFAULT false;

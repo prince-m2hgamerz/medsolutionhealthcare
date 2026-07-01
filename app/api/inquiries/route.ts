@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
+import { sendPushNotification } from "@/lib/pwa/notification";
+import { getActiveSubscriptions } from "@/lib/pwa/subscription-manager";
 
 export async function POST(request: Request) {
   try {
@@ -41,10 +43,19 @@ export async function POST(request: Request) {
 
     const lead = data as Record<string, unknown>;
 
-    // Send email notifications (non-blocking)
+    // Send email notifications and push notifications (non-blocking)
     Promise.allSettled([
       sendLeadNotification(lead),
       sendCustomerConfirmation(lead),
+      getActiveSubscriptions().then((subscriptions) =>
+        sendPushNotification(subscriptions, {
+          title: "New Patient Inquiry: " + (lead.name || "Unknown"),
+          body: `Treatment: ${(lead as { treatment?: string }).treatment || "N/A"} | Country: ${lead.country || "N/A"}`,
+          icon: "/icons/icon-192.png",
+          badge: "/icons/icon-96.png",
+          data: { url: "/admin/inquiries" },
+        })
+      ),
     ]).catch(() => {});
 
     return NextResponse.json({ message: "Inquiry submitted successfully" }, { status: 201 });

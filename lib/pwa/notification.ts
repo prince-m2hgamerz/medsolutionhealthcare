@@ -1,0 +1,43 @@
+import webpush from 'web-push'
+import { configureWebPush } from './vapid'
+import type { NotificationPayload } from '@/types/pwa'
+
+interface PushSubscriptionRow {
+  id: string
+  endpoint: string
+  p256dh: string
+  auth: string
+}
+
+export async function sendPushNotification(
+  subscriptions: PushSubscriptionRow[],
+  payload: NotificationPayload
+): Promise<{ success: number; failed: number }> {
+  configureWebPush()
+
+  let success = 0
+  let failed = 0
+
+  const results = await Promise.allSettled(
+    subscriptions.map((sub) =>
+      webpush.sendNotification(
+        {
+          endpoint: sub.endpoint,
+          keys: { p256dh: sub.p256dh, auth: sub.auth },
+        },
+        JSON.stringify(payload)
+      )
+    )
+  )
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      success++
+    } else {
+      failed++
+      console.error('Push notification failed:', result.reason)
+    }
+  }
+
+  return { success, failed }
+}

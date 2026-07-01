@@ -238,42 +238,42 @@ function ProgressBar({ value, label, max = 100 }: { value: number; label: string
 const scopeCategories = [
   {
     icon: Globe, title: "Public Website", complexity: "Enterprise",
-    hours: "450+", value: "Patient-facing portal — 30+ pages including doctors, hospitals, treatments, specialties, blogs, testimonials, cost calculator, tourism guide, search, and legal pages. Designed to convert visitors into leads.",
+    hours: "80", value: "Patient-facing portal — 30+ pages including doctors, hospitals, treatments, specialties, blogs, testimonials, cost calculator, tourism guide, search, and legal pages. Designed to convert visitors into leads.",
     items: 26, files: 45, details: ["Hero with stats & specialties grid", "Doctor & hospital directories with filters", "218 treatment packages with cost", "Full-site fuzzy search", "Blog with RSS", "Patient testimonials gallery", "Medical tourism guide", "Cost calculator", "SEO metadata on every page"],
   },
   {
     icon: LayoutDashboard, title: "Admin Control Panel", complexity: "Enterprise",
-    hours: "350+", value: "Full admin dashboard to manage all site content, leads, emails, and settings without touching code. Role-based access for team collaboration.",
+    hours: "60", value: "Full admin dashboard to manage all site content, leads, emails, and settings without touching code. Role-based access for team collaboration.",
     items: 19, files: 32, details: ["Dashboard with stats & pipeline", "CRUD for doctors, hospitals, treatments, blogs", "Lead & inquiry management", "Email inbox with threading", "Email marketing campaigns", "Newsletter subscribers", "Admin user management", "Dynamic site settings"],
   },
   {
     icon: Database, title: "Database Architecture", complexity: "High",
-    hours: "200+", value: "14-table PostgreSQL schema on Supabase with Row-Level Security, proper foreign keys, and comprehensive seed data (1700+ doctors, 16 hospitals, 218 packages).",
+    hours: "35", value: "14-table PostgreSQL schema on Supabase with Row-Level Security, proper foreign keys, and comprehensive seed data (1700+ doctors, 16 hospitals, 218 packages).",
     items: 14, files: 12, details: ["14 tables with relationships & RLS", "8 migration files, 1,152 lines SQL", "1700+ doctor profiles seeded", "16 hospitals with full metadata", "8 insurance companies", "9+ hotels near hospitals", "59 configurable image slots", "Public read / admin write security"],
   },
   {
     icon: Server, title: "API Layer", complexity: "High",
-    hours: "200+", value: "23 REST API endpoints connecting frontend to backend — contact forms, lead capture, email sending, admin CRUD, sitemap generation, image proxy, and more.",
+    hours: "35", value: "23 REST API endpoints connecting frontend to backend — contact forms, lead capture, email sending, admin CRUD, sitemap generation, image proxy, and more.",
     items: 23, files: 28, details: ["13 admin API routes", "10 public API routes", "Contact & inquiry form handlers", "Newsletter subscription", "Dynamic XML sitemap generation", "RSS feed generation", "Image proxy for external images", "File upload to Supabase Storage"],
   },
   {
     icon: Mail, title: "Email System", complexity: "High",
-    hours: "200+", value: "Dual email architecture — transactional emails via Resend (lead alerts, confirmations) plus a Cloudflare Workers-powered inbound email handler with full MIME parsing and search.",
+    hours: "30", value: "Dual email architecture — transactional emails via Resend (lead alerts, confirmations) plus a Cloudflare Workers-powered inbound email handler with full MIME parsing and search.",
     items: 12, files: 10, details: ["Transactional via Resend API", "Lead notification to admin (HTML table)", "Customer confirmation with WhatsApp link", "Cloudflare Workers email handler", "Full MIME parser (multipart, base64)", "Email threading via parent_id", "Full-text search (FTS5)", "Attachment storage & retrieval"],
   },
   {
     icon: PaletteIcon, title: "Design System", complexity: "High",
-    hours: "250+", value: "Custom-designed UI across 55+ components with a full DESIGN.md spec — proprietary color palette, typography scale, shadows, animations, and Radix UI primitives.",
+    hours: "45", value: "Custom-designed UI across 55+ components with a full DESIGN.md spec — proprietary color palette, typography scale, shadows, animations, and Radix UI primitives.",
     items: 55, files: 16, details: ["Full DESIGN.md specification (516 lines)", "60+ custom Tailwind color tokens", "10 levels of font-size scale", "Playfair Display + Inter font pairing", "Framer Motion animations", "Radix UI primitives (6 packages)", "Class Variance Authority variants", "Two-canvas dark/light system"],
   },
   {
     icon: MessageCircle, title: "WhatsApp & Engagement", complexity: "Medium",
-    hours: "80+", value: "Direct patient communication via floating WhatsApp button with pre-filled templates, callback requests, social media integration, and configurable contact points.",
+    hours: "15", value: "Direct patient communication via floating WhatsApp button with pre-filled templates, callback requests, social media integration, and configurable contact points.",
     items: 8, files: 5, details: ["Floating WhatsApp button with animation", "Multiple message templates", "Callback request system", "Phone call button", "Social media links (5 platforms)", "WhatsApp in email confirmations", "Configurable via site settings", "Pulsing CSS engagement animation"],
   },
   {
     icon: Shield, title: "Security & Monitoring", complexity: "Medium",
-    hours: "100+", value: "Admin authentication via Supabase Auth, role-based access, Row-Level Security on all tables, Rollbar error monitoring (client + server), and security HTTP headers.",
+    hours: "20", value: "Admin authentication via Supabase Auth, role-based access, Row-Level Security on all tables, Rollbar error monitoring (client + server), and security HTTP headers.",
     items: 10, files: 8, details: ["Supabase Auth for admin login", "3 role levels (super_admin, editor, viewer)", "Row-Level Security on all tables", "Admin session cookie validation", "Route protection middleware", "Rollbar error monitoring", "HTML sanitization", "Security headers (X-Frame-Options, etc.)"],
   },
 ]
@@ -418,14 +418,14 @@ export default function ProjectOverviewPage() {
             <h3 className="font-heading text-heading-md text-primary mb-5">Estimated Effort by Module</h3>
             <div className="space-y-4">
               {[
-                { label: "Public Website", hours: 450, bars: "w-full", cap: "Enterprise" },
-                { label: "Admin Panel", hours: 350, bars: "w-[78%]", cap: "Enterprise" },
-                { label: "Design System", hours: 250, bars: "w-[55%]", cap: "High" },
-                { label: "Database Architecture", hours: 200, bars: "w-[44%]", cap: "High" },
-                { label: "API Layer", hours: 200, bars: "w-[44%]", cap: "High" },
-                { label: "Email System", hours: 200, bars: "w-[44%]", cap: "High" },
-                { label: "Security & Monitoring", hours: 100, bars: "w-[22%]", cap: "Medium" },
-                { label: "WhatsApp & Engagement", hours: 80, bars: "w-[18%]", cap: "Medium" },
+                { label: "Public Website", hours: 80, bars: "w-full",    cap: "Enterprise" },
+                { label: "Admin Panel", hours: 60, bars: "w-[75%]",   cap: "Enterprise" },
+                { label: "Design System", hours: 45, bars: "w-[56%]",   cap: "High" },
+                { label: "Database Architecture", hours: 35, bars: "w-[44%]",   cap: "High" },
+                { label: "API Layer", hours: 35, bars: "w-[44%]",   cap: "High" },
+                { label: "Email System", hours: 30, bars: "w-[38%]",   cap: "High" },
+                { label: "Security & Monitoring", hours: 20, bars: "w-[25%]",   cap: "Medium" },
+                { label: "WhatsApp & Engagement", hours: 15, bars: "w-[19%]",   cap: "Medium" },
               ].map((item) => (
                 <div key={item.label}>
                   <div className="flex justify-between text-sm mb-1.5">
@@ -452,7 +452,7 @@ export default function ProjectOverviewPage() {
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary" /> High</span>
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-neutral-400" /> Medium</span>
               </div>
-              <span className="text-neutral-600 font-medium">~1,830+ total development hours</span>
+              <span className="text-neutral-600 font-medium">~320+ total development hours</span>
             </div>
           </div>
 
@@ -814,7 +814,7 @@ export default function ProjectOverviewPage() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-3xl mx-auto">
               {[
-                { value: "~1,830+", label: "Development Hours", sub: "Across 8 modules" },
+                { value: "~320+", label: "Development Hours", sub: "Across 8 modules" },
                 { value: "29,919", label: "Lines of Code", sub: "TypeScript + SQL" },
                 { value: "658", label: "Total Files", sub: "Including 291 images" },
                 { value: "33", label: "NPM Packages", sub: "Curated dependencies" },

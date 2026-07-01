@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/layout/AppShell";
 import CookieConsent from "@/components/shared/CookieConsent";
 import RollbarProvider from "@/components/shared/RollbarProvider";
+import PwaProvider from "@/components/shared/PwaProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -59,6 +60,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#2563eb",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -67,15 +74,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://cjqfgshjpqpfcjdvfpgc.supabase.co"} />
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.split("/").slice(0, 3).join("/") || "https://cjqfgshjpqpfcjdvfpgc.supabase.co"} />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="alternate" type="application/rss+xml" title="Med Solution Healthcare Blog" href="/api/rss" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Med Solution" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+        <link rel="apple-touch-startup-image" href="/icons/icon-512.png" />
       </head>
       <body className="font-sans antialiased">
         <RollbarProvider>
           <AppShell>{children}</AppShell>
           <CookieConsent />
+          <PwaProvider />
         </RollbarProvider>
       </body>
     </html>

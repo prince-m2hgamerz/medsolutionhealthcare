@@ -15,6 +15,11 @@
 
 # production
 /build
+/medsolution-admin-app/.gradle/
+/medsolution-admin-app/app/build/
+/medsolution-admin-app/app/.cxx/
+/medsolution-admin-app/build/
+/medsolution-admin-app/local.properties
 
 # misc
 .DS_Store

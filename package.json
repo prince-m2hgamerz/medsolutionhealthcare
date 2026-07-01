@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run generate:icons && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:vapid": "node scripts/generate-vapid-keys.mjs",
+    "generate:icons": "node scripts/generate-pwa-icons.mjs",
+    "generate:pwa": "npm run generate:vapid && npm run generate:icons"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -32,12 +35,14 @@
     "resend": "^6.12.4",
     "rollbar": "^3.1.0",
     "sharp": "^0.35.2",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
+    "@types/web-push": "^3.6.4",
     "eslint": "^10.4.1",
     "eslint-config-next": "^16.2.7",
     "postcss": "^8",

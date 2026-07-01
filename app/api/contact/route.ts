@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
 import { serverInstance } from "@/lib/rollbar";
+import { sendPushNotification } from "@/lib/pwa/notification";
+import { getActiveSubscriptions } from "@/lib/pwa/subscription-manager";
 
 const ALLOWED_FIELDS = ["name", "email", "phone", "message"] as const;
 
@@ -44,6 +46,15 @@ export async function POST(request: Request) {
     await Promise.allSettled([
       sendLeadNotification(lead),
       sendCustomerConfirmation(lead),
+      getActiveSubscriptions().then((subscriptions) =>
+        sendPushNotification(subscriptions, {
+          title: "New Contact: " + (lead.name || "Unknown"),
+          body: `${(lead as { message?: string }).message || "No message"}`,
+          icon: "/icons/icon-192.png",
+          badge: "/icons/icon-96.png",
+          data: { url: "/admin/leads" },
+        })
+      ),
     ]);
 
     return NextResponse.json({ message: "Contact form submitted successfully" }, { status: 201 });

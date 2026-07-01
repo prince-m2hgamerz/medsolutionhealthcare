@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendLeadNotification, sendCustomerConfirmation } from "@/lib/email";
+import { sendPushNotification } from "@/lib/pwa/notification";
+import { getActiveSubscriptions } from "@/lib/pwa/subscription-manager";
 
 const ALLOWED_FIELDS = ["name", "email", "phone", "message", "treatment", "country", "medical_condition"] as const;
 
@@ -46,6 +48,15 @@ export async function POST(request: Request) {
     await Promise.allSettled([
       sendLeadNotification(lead),
       sendCustomerConfirmation(lead),
+      getActiveSubscriptions().then((subscriptions) =>
+        sendPushNotification(subscriptions, {
+          title: "New Inquiry: " + (lead.name || "Unknown"),
+          body: `Treatment: ${(lead as { treatment?: string }).treatment || "N/A"}`,
+          icon: "/icons/icon-192.png",
+          badge: "/icons/icon-96.png",
+          data: { url: "/admin/inquiries" },
+        })
+      ),
     ]);
 
     return NextResponse.json({ message: "Inquiry submitted successfully", id: lead.id }, { status: 201 });

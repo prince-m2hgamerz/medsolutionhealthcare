@@ -1,0 +1,4 @@
+-keepclassmembers class com.medsolution.admin.data.model.** { *; }
+-keep class com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*

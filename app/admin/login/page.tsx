@@ -36,6 +36,11 @@ export default function AdminLoginPage() {
       body: JSON.stringify({ email, password }),
     });
 
+    // Request notification permission after successful login
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+
     router.push("/admin");
     router.refresh();
   };
